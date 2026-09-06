@@ -1,90 +1,76 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoIosClose } from "react-icons/io";
 import { IoFolderOpenOutline, IoCloudUploadOutline } from "react-icons/io5";
-import { labData } from "../../api/teacher-api";
-import { editLab } from "../../api/teacher-api";
-import { getLabs } from "../../api/teacher-api";
-import { getGroups } from "../../api/teacher-api";
 
-// Стили
-const Section = styled.section`
+// ===================== API =====================
+const API_BASE_URL = "http://localhost:8000/api/teachers";
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: { "Content-Type": "application/json" },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// ===================== СТИЛИ (ВСЕ КОМПОНЕНТЫ) =====================
+const Section = styled.form`
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  padding: 16px;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    padding: 12px;
-  }
+  flex-wrap: nowrap;
 `;
 
 const BigBlock = styled.div`
-  width: 100%;
   max-width: 1248px;
-  min-height: ${({ $BigHeight }) => ($BigHeight ? "530px" : "auto")};
+  width: 100%;
+  min-height: ${({ $BigHeight }) => ($BigHeight ? "530px" : "400px")};
+  max-height: 530px;
   background-color: ${({ $BigFon }) => ($BigFon ? "#E2EDD0" : "#D5DEF6")};
   border-radius: 10px;
   display: flex;
-  gap: ${({ $GapForm }) => ($GapForm ? "60px" : "16px")};
-  padding: 20px;
-  box-sizing: border-box;
-  flex-wrap: wrap;
+  gap: ${({ $GapForm }) => ($GapForm ? "75px" : "0px")};
+  overflow: hidden;
 
   .block__test {
-    width: 100%;
-    max-width: 540px;
+    width: 540px;
     display: flex;
     flex-direction: column;
     margin-top: 5px;
-    box-sizing: border-box;
+    position: relative;
+    right: 2%;
   }
   .block__one {
     margin-top: 5px;
-    flex: 1 1 320px;
-    min-width: 280px;
-  }
-
-  @media (max-width: 900px) {
-    flex-direction: column;
-    gap: 20px;
-    min-height: auto;
-  }
-
-  @media (max-width: 768px) {
-    padding: 16px;
-  }
-
-  @media (max-width: 480px) {
-    padding: 12px;
-    gap: 16px;
+    width: 700px;
+    position: relative;
+    top: 4%;
+    overflow-y: auto;
+    max-height: 480px;
   }
 `;
 
 const MinBlock = styled.li`
-  width: 100%;
-  max-width: 592px;
+  width: 592px;
   min-height: 102px;
   height: auto;
   border-radius: 10px;
   background-color: #ffffff;
-  padding: 12px;
+  padding: 10px;
   list-style-type: none;
   position: relative;
-  box-sizing: border-box;
-
   .icon {
     position: absolute;
-    top: 8px;
-    right: 12px;
+    top: 5px;
+    right: 10px;
     cursor: pointer;
-  }
-
-  @media (max-width: 768px) {
-    max-width: 100%;
   }
 `;
 
@@ -92,20 +78,10 @@ const UlMinBlock = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding-top: ${({ $PaddingTopForm }) => ($PaddingTopForm ? "10px" : "15px")};
-  max-height: 420px;
-  overflow-y: auto;
-  padding-right: 8px;
-  margin: 0;
-
-  @media (max-width: 768px) {
-    max-height: 360px;
-    gap: 16px;
-  }
-
-  @media (max-width: 480px) {
-    max-height: 320px;
-  }
+  padding-top: 5px;
+  padding-right: 10px;
+  margin: 0 0 10px 0;
+  list-style: none;
 `;
 
 const UlList = styled.ul`
@@ -113,36 +89,34 @@ const UlList = styled.ul`
   flex-wrap: wrap;
   justify-content: center;
   gap: 25px;
-  max-width: 1248px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 16px 24px;
-  box-sizing: border-box;
-  list-style: none;
 
-  .editing__container {
-    width: 100%;
-    max-width: 608px;
-    min-height: 240px;
-    background: #e2edd0;
-    border-radius: 7px;
-    list-style-type: none;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-  }
   .editing__block-Two {
     padding: 0px 30px 30px 20px;
-    box-sizing: border-box;
   }
   .editing__block-text {
     color: #000;
     font-family: "Montserrat";
     font-size: 16px;
   }
-  .editing__block-inp {
+  .editing__block-input {
+    width: 555px;
+    min-height: 100px;
+    border-radius: 7px;
+    border-style: none;
+    color: #000;
+    font-family: "Montserrat";
+    font-size: 16px;
+    line-height: 27px;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 10px 15px;
+  }
+  .editing__block-name {
     display: flex;
-    align-items: center;
+    align-items: baseline;
+    gap: 8px;
   }
   .some-input {
     border: none;
@@ -152,48 +126,11 @@ const UlList = styled.ul`
     outline: none;
     margin-left: 5px;
     font-family: "Montserrat";
-    width: 100%;
-    max-width: 320px;
-  }
-  .editing__block-input {
-    width: 100%;
-    max-width: 555px;
-    height: 60px;
-    border-radius: 7px;
-    border-style: none;
-    color: #000;
-    font-family: "Montserrat";
-    font-size: 16px;
-    line-height: 27px;
-    outline: none;
-    padding: 8px 12px;
-    box-sizing: border-box;
-  }
-  .editing__block-bth {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .editing__block {
-    padding: 0px 30px 0px 20px;
-    display: flex;
-    gap: 60px;
-    align-items: baseline;
-    box-sizing: border-box;
-  }
-  .editing__block-name {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    flex-wrap: wrap;
   }
   .block__button {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 100%;
-    max-width: 1248px;
-    box-sizing: border-box;
   }
   .block__end {
     display: flex;
@@ -201,15 +138,12 @@ const UlList = styled.ul`
     gap: 5px;
     background-color: #e2edd0;
     border-radius: 5px;
-    width: 100%;
-    max-width: 1248px;
-    min-height: 110px;
+    width: 1248px;
+    height: 117px;
     justify-content: center;
     border-style: none;
     align-items: center;
     cursor: pointer;
-    box-sizing: border-box;
-    padding: 12px;
     &:hover {
       background-color: #d7ebb5eb;
     }
@@ -222,100 +156,119 @@ const UlList = styled.ul`
     text-decoration: none;
     display: flex;
     justify-content: center;
-    width: 100%;
-  }
-
-  @media (max-width: 900px) {
-    gap: 18px;
-    padding: 0 12px 20px;
-
-    .editing__block {
-      gap: 30px;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .editing__container {
-      height: auto;
-      min-height: 220px;
-      padding: 12px 0;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .editing__block-Two {
-      padding: 0px 18px 20px 14px;
-    }
-    .editing__block-input {
-      font-size: 14px;
-      height: 52px;
-    }
-    .editing__block-text {
-      font-size: 14px;
-    }
-    .block__end {
-      min-height: 100px;
-    }
-  }
-
-  @media (max-width: 570px) {
-    .editing__block-bth {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .some-input {
-      max-width: 100%;
-    }
-  }
-
-  @media (max-width: 480px) {
-    gap: 14px;
-    .block__end-link {
-      font-size: 14px;
-      line-height: 22px;
-    }
+    width: 1248px;
   }
 `;
 
 const List = styled.li`
-  width: 100%;
-  max-width: ${({ $Block }) => ($Block ? "1248px" : "608px")};
-  min-height: ${({ $Block }) => ($Block ? "59px" : "260px")};
-  height: auto;
-  background-color: ${({ $Block }) => ($Block ? "#D9D9D9" : "#D5DEF6")};
+  width: ${({ $Block }) => ($Block ? "1248px" : "608px")};
+  min-height: ${({ $Block }) => ($Block ? "80px" : "260px")};
+  background-color: ${({ $Back }) => ($Back ? "#E2EDD0" : "#D5DEF6")};
   border-radius: 7px;
   display: flex;
   align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
   list-style-type: none;
-  box-sizing: border-box;
-  padding: 8px 0;
+`;
 
-  @media (max-width: 900px) {
-    max-width: 100%;
+const TitleInput = styled.input`
+  width: calc(100% - 40px);
+  max-width: 1175px;
+  height: 80px;
+  font-size: 18px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 7px;
+  outline: none;
+  font-family: "Montserrat";
+  background-color: #ffffff;
+`;
+
+const TestsIOBlock = styled.div`
+  width: 1248px;
+  background-color: #d5def6;
+  border-radius: 10px;
+  padding: 20px;
+  .tests-input-title {
+    font-size: 19px;
+    font-family: "Montserrat";
+    font-weight: 500;
+    margin-bottom: 15px;
+  }
+  .tests-input {
+    margin-bottom: 15px;
+  }
+  .hint {
+    font-size: 14px;
+    font-family: "Montserrat";
+    color: #555;
+    margin: 5px 0;
+  }
+  .tools {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+  }
+  .tool-icon {
+    font-size: 28px;
+    cursor: pointer;
+    color: #333;
+    &:hover {
+      color: #4caf50;
+    }
+  }
+  .textarea {
+    width: 100%;
+    height: 150px;
+    border-radius: 7px;
+    border: none;
+    padding: 10px;
+    font-family: "Montserrat";
+    font-size: 14px;
+    outline: none;
+    resize: vertical;
   }
 `;
 
-const NameLabBlock = styled.div`
-  display: block;
-  border: none;
-  background: none;
-  background-color: #d5def6;
-  width: 100%;
-  max-width: 1248px;
-  min-height: 220px;
-  height: auto;
-  font-size: 18px;
-  padding: 10px 12px 10px 18px;
-  outline: none;
-  box-sizing: border-box;
+const RestrictionsBlock = styled.div`
+  width: 1248px;
+  background-color: #e2edd0;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+`;
 
-  @media (max-width: 768px) {
+const RestrictionRoom = styled.div`
+  width: calc(20% - 16px);
+  min-width: 200px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  .room-title {
     font-size: 16px;
-    min-height: 200px;
+    font-family: "Montserrat";
+    font-weight: 500;
+    margin: 0;
   }
-
-  @media (max-width: 480px) {
-    font-size: 15px;
-    min-height: 190px;
+  .room-input {
+    height: 40px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 0 10px;
+    font-family: "Montserrat";
+    font-size: 14px;
+    outline: none;
+    &:focus {
+      border-color: #4caf50;
+    }
   }
 `;
 
@@ -327,17 +280,6 @@ const TitleBlock = styled.h3`
   line-height: ${({ $LineHeight }) => ($LineHeight ? "45px" : "27px")};
   padding-left: ${({ $Padding }) => ($Padding ? "45px" : "0px")};
   margin: ${({ $Margin }) => ($Margin ? "0px" : "none")};
-
-  @media (max-width: 768px) {
-    font-size: ${({ $FontSize }) => ($FontSize ? "15px" : "17px")};
-    line-height: ${({ $LineHeight }) => ($LineHeight ? "36px" : "24px")};
-    padding-left: ${({ $Padding }) => ($Padding ? "30px" : "0px")};
-  }
-
-  @media (max-width: 480px) {
-    font-size: ${({ $FontSize }) => ($FontSize ? "14px" : "16px")};
-    padding-left: ${({ $Padding }) => ($Padding ? "18px" : "0px")};
-  }
 `;
 
 const ButtonAdd = styled.button`
@@ -349,536 +291,480 @@ const ButtonAdd = styled.button`
   background: #fff;
   height: 42px;
   cursor: pointer;
-  box-sizing: border-box;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
   &:hover {
     background: #c8d5f6;
     color: #fff;
-    border-style: none;
     transition: 0.5s;
-  }
-
-  @media (max-width: 768px) {
-    width: ${({ $ButtonAddW }) => ($ButtonAddW ? "260px" : "220px")};
-    height: 38px;
-    font-size: 14px;
-  }
-
-  @media (max-width: 570px) {
-    width: 100%;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 13px;
-    height: 36px;
   }
 `;
 
-// Новый стиль для выпадающего списка
-const SubjectSelect = styled.select`
-  font-family: "Montserrat";
-  width: 100%;
-  max-width: 555px;
+const FormSelect = styled.select`
   height: 45px;
   border-radius: 5px;
-  background: #ffffff;
+  background-color: #ffffff;
   border: none;
   outline: none;
   font-size: 16px;
-  padding: 10px;
-  margin-top: 10px;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    font-size: 15px;
-    height: 42px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 14px;
-    height: 40px;
-  }
-`;
-
-const TextStyle = styled.p`
-  font-family: "Montserrat", sans-serif;
-  font-size: 14px;
-  margin: 0;
-  text-align: center;
-  color: #000;
-  padding: 20px;
-  border-radius: 7px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  max-height: 30px;
-`;
-
-// Блок ввода тестов / загрузки .txt
-const TestsIOBlock = styled.div`
+  font-family: "Montserrat";
+  padding: 0 10px;
   width: 100%;
-  max-width: 1248px;
-  background-color: #d5def6;
-  border-radius: 7px;
-  padding: 16px;
+`;
+
+const Notification = styled.div`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 5px;
+  color: #fff;
+  font-family: "Montserrat";
+  font-size: 14px;
+  background-color: ${({ $isSuccess }) => ($isSuccess ? "#28a745" : "#dc3545")};
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  z-index: 1000;
+`;
+
+const TwoColumnRow = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-sizing: border-box;
-
-  .tests-input-title {
-    font-family: "Montserrat";
-    font-size: 20px;
-    color: #000;
-  }
-  .tests-input {
-    background-color: #fff;
-    border-radius: 7px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .hint {
-    font-family: "Montserrat";
-    font-size: 14px;
-    color: #000;
-  }
-
-  .tools {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .tool-icon {
-    width: 28px;
-    height: 28px;
-    color: #656565;
-    cursor: pointer;
-  }
-
-  .textarea {
-    width: 98%;
-    height: 300px;
-    resize: vertical;
-    border-radius: 6px;
-    border: none;
-    outline: none;
-    background: #f0f0f2;
-    font-family: "Montserrat";
-    font-size: 14px;
-    padding: 12px;
-    color: #000;
-    box-sizing: border-box;
-  }
-
-  @media (max-width: 900px) {
-    padding: 14px;
-  }
-
-  @media (max-width: 768px) {
-    .tests-input-title {
-      font-size: 18px;
-    }
-    .textarea {
-      height: 240px;
-      font-size: 13px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    padding: 12px;
-    .tests-input {
-      padding: 12px;
-    }
-    .textarea {
-      height: 200px;
-    }
+  gap: 25px;
+  width: 1248px;
+  > * {
+    flex: 1;
   }
 `;
 
-const LaboratoryAdd = () => {
-    const { id } = useParams(); // Получаем ID лабораторной работы из URL
-    const [labTitle, setLabTitle] = useState("");
-    const [labDescription, setLabDescription] = useState("");
-    const [teacherFormula, setTeacherFormula] = useState(""); // Новое состояние
-    const [inputVariables, setInputVariables] = useState(""); // Новое состояние
-    const [subjectId, setSubjectId] = useState(null); // Состояние для subject_id
-    const [subjects, setSubjects] = useState([]); // Список предметов
-    const [selectedGroup, setSelectedGroup] = useState("")
-    const [groups, setGroups] = useState([]);
-    const [testCases, setTestCases] = useState([]);
-    const [newTestCase, setNewTestCase] = useState({ inp: "", out: "" });
-    const [bulkTestsText, setBulkTestsText] = useState("");
-    const [responseMessage, setResponseMessage] = useState("");
-    const [error, setError] = useState("");
+// ===================== КОМПОНЕНТ =====================
+const PrepodRedLab = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-    // Токен авторизации (замените на реальный токен)
-    const token = localStorage.getItem("access_token");
+  const [labTitle, setLabTitle] = useState("");
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editingTitle, setEditingTitle] = useState("");
+  const [labDescription, setLabDescription] = useState("");
+  const [selectedGroup, setSelectedGroup] = useState("");
+  const [groups, setGroups] = useState([]);
+  const [tests, setTests] = useState([]);
+  const [newTest, setNewTest] = useState({ inp: "", out: "" });
+  const [bulkTestsText, setBulkTestsText] = useState("");
+  const fileInputRef = useRef(null);
+  const descriptionRef = useRef(null);
+  const [loading, setLoading] = useState(true);
 
-    // Загрузка данных лабораторной работы и списка предметов
-    useEffect(() => {
-        // Получение данных лабораторной работы
-        const fetchLabData = async () => {
-            labData(id).then((response) => {
-                if (response.status === 200) {
-                    console.log("Данные лабораторной работы:", response.data);
-                    const lab = response.data;
-                    setLabTitle(lab.name || "");
-                    setLabDescription(lab.description || "");
-                    setTeacherFormula(lab.teacher_formula || ""); // Заполняем формулу
-                    setInputVariables(lab.input_variables || ""); // Заполняем переменные
-                    setSubjectId(lab.subject_id || null);
-                    setSelectedGroup(lab.group_id)
-                    setTestCases(lab.test_cases || []);
-                    setResponseMessage("Данные лабораторной работы загружены!");
-                } else {
-                    console.error("Ошибка при загрузке данных лабораторной работы:", error);
-                    setError("Не удалось загрузить данные лабораторной работы");
-                }
-            });
-        };
+  const [maxVariables, setMaxVariables] = useState("");
+  const [codeLength, setCodeLength] = useState("");
+  const [attemptsCount, setAttemptsCount] = useState("");
+  const [speedLimit, setSpeedLimit] = useState("");
+  const [memoryLimit, setMemoryLimit] = useState("");
 
-        // Получение списка предметов
-        const fetchSubjects = async () => {
-            getLabs().then((response) => {
-                if (response.status === 200) {
-                    setSubjects(response.data || []);
-                    console.log("Список предметов:", response.data);
-                } else {
-                    console.error("Ошибка при загрузке списка предметов:", error);
-                    setError("Не удалось загрузить список предметов");
-                }
-            });
-        };
+  const [responseMessage, setResponseMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
-        const fetchGroups = async () => {
-            getLabs().then((response) => {
-                if (response.status === 200) {
-                    setGroups(response.data || []);
-                } else {
-                    console.error("Ошибка при загрузке списка групп:", error);
-                    setError("Не удалось загрузить список групп");
-                }
-            });
-        };
+  // Автоподстройка высоты textarea под содержимое (без ручного растягивания)
+  const autoResizeTextarea = (element) => {
+    if (!element) return;
+    element.style.height = "auto";
+    element.style.height = `${element.scrollHeight}px`;
+  };
 
-        if (id) {
-            fetchLabData();
-            fetchSubjects();
-            fetchGroups();
-        }
-    }, [id]);
-
-    // Обработка изменения названия лабораторной работы
-    const handleLabTitleChange = (event) => {
-        setLabTitle(event.target.value);
+  // Загрузка групп
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const res = await api.get("/groups");
+        setGroups(res.data);
+      } catch (err) {
+        console.error("Ошибка загрузки групп:", err);
+      }
     };
+    fetchGroups();
+  }, []);
 
-    // Обработка изменения описания лабораторной работы
-    const handleLabDescriptionChange = (event) => {
-        setLabDescription(event.target.value);
+  // Загрузка данных лабы
+  useEffect(() => {
+    const fetchLab = async () => {
+      try {
+        const res = await api.get(`/labs/${id}`);
+        const lab = res.data;
+        setLabTitle(lab.name || "");
+        setEditingTitle(lab.name || "");
+        setLabDescription(lab.description || "");
+        setTests(lab.test_cases || []);
+        setSelectedGroup(lab.group_id || "");
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setResponseMessage("Не удалось загрузить лабораторную");
+        setIsSuccess(false);
+        setLoading(false);
+      }
     };
+    if (id) fetchLab();
+  }, [id]);
 
-    // Обработка изменения формулы
-    const handleTeacherFormulaChange = (event) => {
-        setTeacherFormula(event.target.value);
-    };
+  // Подгоняем высоту textarea сразу после того, как описание подгрузилось с сервера
+  useEffect(() => {
+    autoResizeTextarea(descriptionRef.current);
+  }, [labDescription, loading]);
 
-    // Обработка изменения входных переменных
-    const handleInputVariablesChange = (event) => {
-        setInputVariables(event.target.value);
-    };
+  useEffect(() => {
+    if (responseMessage) {
+      setShowNotification(true);
+      setTimeout(() => {
+        setShowNotification(false);
+        setResponseMessage("");
+      }, 3000);
+    }
+  }, [responseMessage]);
 
-    // Обработка изменения предмета
-    const handleSubjectChange = (event) => {
-        setSubjectId(Number(event.target.value));
-    };
+  const handleSaveTitle = () => {
+    if (editingTitle.trim()) {
+      setLabTitle(editingTitle.trim());
+      setIsEditingTitle(false);
+    } else {
+      setResponseMessage("Название не может быть пустым!");
+      setIsSuccess(false);
+    }
+  };
 
-    const handleGroupChange = (event) => {
-        setSelectedGroup(Number(event.target.value));
-    };
+  // Тесты
+  const handleAddTest = () => {
+    if (!newTest.inp.trim() && !newTest.out.trim()) {
+      setResponseMessage("Заполните хотя бы одно поле теста!");
+      setIsSuccess(false);
+      return;
+    }
+    setTests([...tests, { id: Date.now(), inp: newTest.inp, out: newTest.out }]);
+    setNewTest({ inp: "", out: "" });
+  };
 
-    // Обработка изменения полей нового тестового случая
-    const handleNewTestCaseChange = (event) => {
-        const { name, value } = event.target;
-        setNewTestCase((prev) => ({ ...prev, [name]: value }));
-    };
+  const handleRemoveTest = (index) => {
+    setTests(tests.filter((_, i) => i !== index));
+  };
 
-    // Добавление нового тестового случая
-    const handleAddTestCase = () => {
-        if (newTestCase.inp.trim() && newTestCase.out.trim()) {
-            setTestCases((prev) => [
-                ...prev,
-                { id: Date.now(), inp: newTestCase.inp, out: newTestCase.out }, // Временный ID
-            ]);
-            setNewTestCase({ inp: "", out: "" });
-        } else {
-            setError("Заполните все поля тестового случая");
-        }
-    };
-
-    // Импорт тестов из textarea по шаблону: input -> expected
-    const importTestsFromText = () => {
-        if (!bulkTestsText.trim()) return;
-        const lines = bulkTestsText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-        const imported = [];
-        for (const line of lines) {
-            const [inp, out] = line.split(/\s*->\s*/);
-            if (typeof inp === "string" && typeof out === "string") {
-                imported.push({ id: Date.now() + Math.random(), inp, out });
-            }
-        }
-        if (imported.length) {
-            setTestCases((prev) => [...prev, ...imported]);
-            setBulkTestsText("");
-            setError("");
-        } else {
-            setError("Не удалось распознать тесты. Используйте формат: input -> expected_output");
-        }
-    };
-
-    // Загрузка .txt и помещение содержимого в textarea
-    const fileInputRef = React.useRef(null);
-    const onPickFile = () => fileInputRef.current?.click();
-    const onFileSelected = (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        if (!file.name.toLowerCase().endsWith(".txt")) {
-            setError("Допустим только файл .txt");
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = () => setBulkTestsText(String(reader.result || ""));
-        reader.readAsText(file, "utf-8");
-        setError("");
-    };
-
-    // Удаление тестового случая
-    const handleDeleteTestCase = (testCaseId) => {
-        setTestCases((prev) => prev.filter((test) => test.id !== testCaseId));
-    };
-
-    // Обработка изменения существующего тестового случая
-    const handleTestCaseChange = (testCaseId, field, value) => {
-        setTestCases((prev) =>
-            prev.map((test) =>
-                test.id === testCaseId ? { ...test, [field]: value } : test
-            )
-        );
-    };
-
-    // Отправка отредактированных данных на бэкенд
-    const handleSaveLabData = async () => {
-        if (!subjectId) {
-            setError("Выберите предмет");
-            return;
-        }
-
-        const labData = {
-            task: {
-                id: Number(id),
-                name: labTitle,
-                description: labDescription,
-                teacher_formula: teacherFormula, // Используем новое состояние
-                input_variables: inputVariables, // Используем новое состояние
-                subject_id: parseInt(subjectId),
-                group_id: parseInt(selectedGroup),
-                test_cases: testCases.map((test) => ({
-                    id: test.id,
-                    inp: test.inp,
-                    out: test.out,
-                })),
-            }
-        };
-
-        try {
-            const response = await editLab(id, labData);
-            if (response.status === 200) {
-                console.log("Лабораторная работа успешно обновлена:", response.data);
-                setResponseMessage("Лабораторная работа успешно обновлена!");
-                setError("");
-            } else {
-                console.error("Ошибка при обновлении лабораторной работы:", response);
-                setError("Не удалось обновить лабораторную работу");
-                setResponseMessage("");
-            }
-        } catch (error) {
-            console.error("Ошибка при обновлении лабораторной работы:", error);
-            setError("Не удалось обновить лабораторную работу");
-            setResponseMessage("");
-        }
-    };
-
-    return (
-        <Section>
-          <NameLabBlock>
-            <p>
-              Вы находитесь в режиме редактирования:
-            </p>
-            <h1>
-              {subjectId.name} {labTitle.name}
-            </h1>
-          </NameLabBlock>
-            <UlList>
-                {/* Описание лабораторной работы */}
-                <List>
-                    <div className="editing__block-Two">
-                        <TitleBlock>Описание лабораторной работы</TitleBlock>
-                        <p className="editing__block-text">
-                        </p>
-                        <input
-                            className="editing__block-input"
-                            type="text"
-                            value={labDescription}
-                            onChange={handleLabDescriptionChange}
-                            placeholder="Введите описание лабораторной работы"
-                        />
-                    </div>
-                </List>
-
-                <List>
-                    <div className="editing__block-Two">
-                        <TitleBlock>Выберите группу:</TitleBlock>
-                        <SubjectSelect value={selectedGroup || ""} onChange={handleGroupChange}>
-                            <option value="" disabled>
-                                Выберите группу
-                            </option>
-                            {groups.map((group) => (
-                                <option key={group.id} value={group.id}>
-                                    {group.name}
-                                </option>
-                            ))}
-                        </SubjectSelect>
-                    </div>
-                </List>
-
-                {/* Поле для ввода тестов / загрузки файла .txt */}
-                <TestsIOBlock>
-                    <p className="tests-input-title">Форма для ввода или загрузки тестов</p>
-                    <div className="tests-input">
-                        <TitleBlock $FontWeight>Введите тесты в формате:</TitleBlock>
-                        <div className="hint">input1 -&gt; expected_output1</div>
-                        <div className="hint">input2 -&gt; expected_output2</div>
-                        <div className="hint" style={{ marginTop: "8px" }}>или перетащите файл в формате .txt:</div>
-                        <div className="tools">
-                            <IoFolderOpenOutline className="tool-icon" onClick={onPickFile} />
-                            <IoCloudUploadOutline className="tool-icon" onClick={onPickFile} />
-                            <input
-                                type="file"
-                                accept=".txt"
-                                ref={fileInputRef}
-                                onChange={onFileSelected}
-                                style={{ display: "none" }}
-                            />
-                        </div>
-                        <div>
-                            <textarea
-                                className="textarea"
-                                placeholder="Введите код"
-                                value={bulkTestsText}
-                                onChange={(e) => setBulkTestsText(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    <ButtonAdd onClick={importTestsFromText}>Импортировать тесты</ButtonAdd>
-                </TestsIOBlock>
-
-                {/* Список тестовых случаев */}
-                <BigBlock $BigFon $BigHeight $BigWeight $GapForm>
-                    <div className="block__one">
-                        <TitleBlock $Padding $Margin>Список тестов:</TitleBlock>
-                        <UlMinBlock>
-                            {testCases.map((test) => (
-                                <MinBlock key={test.id}>
-                                    <TitleBlock $FontSize $FontWeight $Margin>
-                                        Тест {test.id} "Проверка на ..."
-                                    </TitleBlock>
-                                    <div className="editing__block-name">
-                                        <TitleBlock $FontSize $FontWeight $Margin>
-                                            Входные данные:
-                                        </TitleBlock>
-                                        <input
-                                            type="text"
-                                            className="some-input"
-                                            value={test.inp}
-                                            onChange={(e) =>
-                                                handleTestCaseChange(test.id, "inp", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="editing__block-name">
-                                        <TitleBlock $FontSize $FontWeight $Margin>Вывод:</TitleBlock>
-                                        <input
-                                            type="text"
-                                            className="some-input"
-                                            value={test.out}
-                                            onChange={(e) =>
-                                                handleTestCaseChange(test.id, "out", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <IoIosClose
-                                        className="icon"
-                                        onClick={() => handleDeleteTestCase(test.id)}
-                                    />
-                                </MinBlock>
-                            ))}
-                        </UlMinBlock>
-                    </div>
-
-                    {/* Добавление нового тестового случая */}
-                    <div className="block__test">
-                        <TitleBlock>Добавить новый тест:</TitleBlock>
-                        <div className="editing__block-name">
-                            <TitleBlock $FontSize $FontWeight>
-                                Входные данные:
-                            </TitleBlock>
-                            <input
-                                type="text"
-                                className="some-input"
-                                name="inp"
-                                value={newTestCase.inp}
-                                onChange={handleNewTestCaseChange}
-                                placeholder="Входные данные"
-                            />
-                        </div>
-                        <div className="editing__block-name">
-                            <TitleBlock $FontSize $FontWeight>Вывод:</TitleBlock>
-                            <input
-                                type="text"
-                                className="some-input"
-                                name="out"
-                                value={newTestCase.out}
-                                onChange={handleNewTestCaseChange}
-                                placeholder="Ожидаемый вывод"
-                            />
-                        </div>
-                        <ButtonAdd $ButtonAddW onClick={handleAddTestCase}>
-                            Добавить тест
-                        </ButtonAdd>
-                    </div>
-                </BigBlock>
-
-                {/* Кнопка сохранения */}
-                <div className="block__button">
-                    <button className="block__end" onClick={handleSaveLabData}>
-                        <Link className="block__end-link" to="/Laboratory">
-                            Завершить редактирование и сохранить
-                        </Link>
-                    </button>
-                    {responseMessage && <TextStyle>{responseMessage}</TextStyle>}
-                    {error && <p style={{ color: "red" }}>{error}</p>}
-                </div>
-            </UlList>
-        </Section>
+  const handleTestCaseChange = (testId, field, value) => {
+    setTests((prev) =>
+      prev.map((t) => (t.id === testId ? { ...t, [field]: value } : t))
     );
+  };
+
+  // Импорт тестов
+  const importTestsFromText = () => {
+    if (!bulkTestsText.trim()) {
+      setResponseMessage("Нет текста для импорта!");
+      setIsSuccess(false);
+      return;
+    }
+    const lines = bulkTestsText.split(/\r?\n/);
+    const newTests = [];
+    for (const line of lines) {
+      if (line.includes("->")) {
+        const [inp, out] = line.split("->").map((s) => s.trim());
+        if (inp && out) {
+          newTests.push({ id: Date.now() + Math.random(), inp, out });
+        }
+      }
+    }
+    if (newTests.length === 0) {
+      setResponseMessage("Не найдено тестов в формате input -> output");
+      setIsSuccess(false);
+    } else {
+      setTests((prev) => [...prev, ...newTests]);
+      setBulkTestsText("");
+      setResponseMessage(`Импортировано ${newTests.length} тестов`);
+      setIsSuccess(true);
+    }
+  };
+
+  const onPickFile = () => fileInputRef.current?.click();
+  const onFileSelected = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setBulkTestsText(ev.target?.result || "");
+    reader.readAsText(file);
+  };
+
+  // Сохранение
+  const handleSave = async () => {
+    if (!labTitle.trim()) {
+      setResponseMessage("Введите название!");
+      setIsSuccess(false);
+      return;
+    }
+    if (!selectedGroup) {
+      setResponseMessage("Выберите группу!");
+      setIsSuccess(false);
+      return;
+    }
+    if (tests.length === 0) {
+      setResponseMessage("Добавьте хотя бы один тест!");
+      setIsSuccess(false);
+      return;
+    }
+
+    const payload = {
+      task: {
+        id: Number(id),
+        name: labTitle,
+        description: labDescription || "",
+        teacher_formula: "",
+        input_variables: "",
+        subject_id: 1,
+        group_id: parseInt(selectedGroup),
+        test_cases: tests.map((t, idx) => ({
+          id: typeof t.id === "number" ? t.id : idx + 1,
+          inp: t.inp,
+          out: t.out,
+        })),
+      },
+    };
+
+    try {
+      await api.put(`/labs/${id}`, payload);
+      setResponseMessage("Лабораторная работа обновлена!");
+      setIsSuccess(true);
+      setTimeout(() => navigate("/teacher/labs"), 1500);
+    } catch (err) {
+      console.error(err);
+      setResponseMessage(err.response?.data?.error || "Ошибка обновления");
+      setIsSuccess(false);
+    }
+  };
+
+  if (loading) return <div style={{ padding: 50, textAlign: "center" }}>Загрузка...</div>;
+
+  return (
+    <>
+      <Section onSubmit={(e) => e.preventDefault()}>
+        <UlList>
+          {/* ЭТАЖ 1: Название */}
+          <List $Block style={{ width: "1248px", minHeight: "120px", padding: "20px" }}>
+            {!isEditingTitle ? (
+              <div style={{ width: "100%", textAlign: "center" }}>
+                <TitleBlock style={{ fontSize: "24px", marginBottom: "15px" }}>
+                  Текущее название: {labTitle}
+                </TitleBlock>
+                <ButtonAdd onClick={() => setIsEditingTitle(true)} style={{ width: "200px" }}>
+                  Изменить название
+                </ButtonAdd>
+              </div>
+            ) : (
+              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "15px", alignItems: "center" }}>
+                <TitleInput
+                  type="text"
+                  value={editingTitle}
+                  onChange={(e) => setEditingTitle(e.target.value)}
+                  autoFocus
+                />
+                <div style={{ display: "flex", gap: "15px" }}>
+                  <ButtonAdd onClick={handleSaveTitle} style={{ background: "#4CAF50", color: "white" }}>
+                    Сохранить
+                  </ButtonAdd>
+                  <ButtonAdd
+                    onClick={() => {
+                      setEditingTitle(labTitle);
+                      setIsEditingTitle(false);
+                    }}
+                    style={{ background: "#f44336", color: "white" }}
+                  >
+                    Отмена
+                  </ButtonAdd>
+                </div>
+              </div>
+            )}
+          </List>
+
+          {/* ЭТАЖ 2: Описание + Группа */}
+          <TwoColumnRow>
+            <List>
+              <div className="editing__block-Two">
+                <TitleBlock>Описание лабораторной</TitleBlock>
+                <p className="editing__block-text">Введите описание</p>
+                <textarea
+                  ref={descriptionRef}
+                  className="editing__block-input"
+                  value={labDescription}
+                  onChange={(e) => {
+                    setLabDescription(e.target.value);
+                    autoResizeTextarea(e.target);
+                  }}
+                  placeholder="Введите текст"
+                />
+              </div>
+            </List>
+            <List $Back>
+              <div className="editing__block-Two">
+                <TitleBlock>Выбор группы</TitleBlock>
+                <p className="editing__block-text">Выберите группу</p>
+                <FormSelect value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)}>
+                  <option value="">Группа</option>
+                  {groups.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </FormSelect>
+              </div>
+            </List>
+          </TwoColumnRow>
+
+          {/* ЭТАЖ 3: Тесты */}
+          <BigBlock $BigFon $BigHeight $GapForm>
+            <div className="block__one">
+              <TitleBlock $Padding>Список тестов:</TitleBlock>
+              <UlMinBlock>
+                {tests.map((test, idx) => (
+                  <MinBlock key={test.id || idx}>
+                    <TitleBlock $FontSize $FontWeight $Margin>Тест {idx + 1}</TitleBlock>
+                    <div className="editing__block-name">
+                      <TitleBlock $FontSize $FontWeight $Margin>Входные данные:</TitleBlock>
+                      <input
+                        type="text"
+                        className="some-input"
+                        value={test.inp}
+                        onChange={(e) => handleTestCaseChange(test.id, "inp", e.target.value)}
+                      />
+                    </div>
+                    <div className="editing__block-name">
+                      <TitleBlock $FontSize $FontWeight $Margin>Вывод:</TitleBlock>
+                      <input
+                        type="text"
+                        className="some-input"
+                        value={test.out}
+                        onChange={(e) => handleTestCaseChange(test.id, "out", e.target.value)}
+                      />
+                    </div>
+                    <IoIosClose className="icon" onClick={() => handleRemoveTest(idx)} />
+                  </MinBlock>
+                ))}
+              </UlMinBlock>
+            </div>
+            <div className="block__test">
+              <TitleBlock>Добавить новый тест:</TitleBlock>
+              <div className="editing__block-name">
+                <TitleBlock $FontSize $FontWeight>Входные данные:</TitleBlock>
+                <input
+                  type="text"
+                  className="some-input"
+                  value={newTest.inp}
+                  onChange={(e) => setNewTest({ ...newTest, inp: e.target.value })}
+                />
+              </div>
+              <div className="editing__block-name">
+                <TitleBlock $FontSize $FontWeight>Вывод:</TitleBlock>
+                <input
+                  type="text"
+                  className="some-input"
+                  value={newTest.out}
+                  onChange={(e) => setNewTest({ ...newTest, out: e.target.value })}
+                />
+              </div>
+              <ButtonAdd $ButtonAddW type="button" onClick={handleAddTest}>
+                Добавить тест
+              </ButtonAdd>
+            </div>
+          </BigBlock>
+
+          {/* ЭТАЖ 4: Импорт тестов */}
+          <TestsIOBlock>
+            <p className="tests-input-title">Форма для ввода или загрузки тестов</p>
+            <div className="tests-input">
+              <TitleBlock $FontWeight>Введите тесты в формате:</TitleBlock>
+              <div className="hint">input1 -&gt; expected_output1</div>
+              <div className="hint">input2 -&gt; expected_output2</div>
+              <div className="tools">
+                <IoFolderOpenOutline className="tool-icon" onClick={onPickFile} />
+                <IoCloudUploadOutline className="tool-icon" onClick={onPickFile} />
+                <input
+                  type="file"
+                  accept=".txt"
+                  ref={fileInputRef}
+                  onChange={onFileSelected}
+                  style={{ display: "none" }}
+                />
+              </div>
+              <textarea
+                className="textarea"
+                placeholder="Введите тесты в формате: input -> output"
+                value={bulkTestsText}
+                onChange={(e) => setBulkTestsText(e.target.value)}
+              />
+            </div>
+            <ButtonAdd onClick={importTestsFromText}>Импортировать тесты</ButtonAdd>
+          </TestsIOBlock>
+
+          {/* ЭТАЖ 5: Ограничения */}
+          <RestrictionsBlock>
+            <RestrictionRoom>
+              <p className="room-title">Количество переменных</p>
+              <input
+                type="text"
+                className="room-input"
+                placeholder="Максимум переменных"
+                value={maxVariables}
+                onChange={(e) => setMaxVariables(e.target.value)}
+              />
+            </RestrictionRoom>
+            <RestrictionRoom>
+              <p className="room-title">Длина кода</p>
+              <input
+                type="text"
+                className="room-input"
+                placeholder="Максимальная длина кода"
+                value={codeLength}
+                onChange={(e) => setCodeLength(e.target.value)}
+              />
+            </RestrictionRoom>
+            <RestrictionRoom>
+              <p className="room-title">Количество попыток</p>
+              <input
+                type="text"
+                className="room-input"
+                placeholder="Максимум попыток"
+                value={attemptsCount}
+                onChange={(e) => setAttemptsCount(e.target.value)}
+              />
+            </RestrictionRoom>
+            <RestrictionRoom>
+              <p className="room-title">Скорость работы</p>
+              <input
+                type="text"
+                className="room-input"
+                placeholder="Ограничение по времени (сек)"
+                value={speedLimit}
+                onChange={(e) => setSpeedLimit(e.target.value)}
+              />
+            </RestrictionRoom>
+            <RestrictionRoom>
+              <p className="room-title">Используемая память</p>
+              <input
+                type="text"
+                className="room-input"
+                placeholder="Ограничение по памяти (МБ)"
+                value={memoryLimit}
+                onChange={(e) => setMemoryLimit(e.target.value)}
+              />
+            </RestrictionRoom>
+          </RestrictionsBlock>
+
+          {/* ЭТАЖ 6: Кнопка */}
+          <div className="block__button">
+            <button className="block__end" type="button" onClick={handleSave}>
+              <span className="block__end-link">Завершить редактирование и сохранить</span>
+            </button>
+          </div>
+        </UlList>
+      </Section>
+      {showNotification && (
+        <Notification $isSuccess={isSuccess} $visible={showNotification}>
+          {responseMessage}
+        </Notification>
+      )}
+    </>
+  );
 };
 
-export default LaboratoryAdd;
+export default PrepodRedLab;

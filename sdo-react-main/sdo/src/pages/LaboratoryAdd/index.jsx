@@ -1,23 +1,44 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { IoIosClose } from "react-icons/io";
-import { createLab, getSubjects, getGroups } from "../../api/teacher-api";
+import { IoFolderOpenOutline, IoCloudUploadOutline } from "react-icons/io5";
 
+// API
+const API_BASE_URL = "http://localhost:8000/api/teachers";
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: { "Content-Type": "application/json" },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// ===================== СТИЛИ =====================
 const Section = styled.form`
   display: flex;
   justify-content: center;
   flex-wrap: nowrap;
 `;
+
 const BigBlock = styled.div`
   max-width: 1248px;
   width: 100%;
-  height: ${({ $BigHeight }) => ($BigHeight ? "530px" : "375px")};
+  min-height: ${({ $BigHeight }) => ($BigHeight ? "530px" : "400px")};
+  max-height: 530px;
   background-color: ${({ $BigFon }) => ($BigFon ? "#E2EDD0" : "#D5DEF6")};
   border-radius: 10px;
   display: flex;
   gap: ${({ $GapForm }) => ($GapForm ? "75px" : "0px")};
+  overflow: hidden;
+
   .block__test {
     width: 540px;
     display: flex;
@@ -26,16 +47,21 @@ const BigBlock = styled.div`
     position: relative;
     right: 2%;
   }
+
   .block__one {
     margin-top: 5px;
     width: 700px;
     position: relative;
     top: 4%;
+    overflow-y: auto;
+    max-height: 480px;
   }
 `;
+
 const MinBlock = styled.li`
   width: 592px;
-  height: 102px;
+  min-height: 102px;
+  height: auto;
   border-radius: 10px;
   background-color: #ffffff;
   padding: 10px;
@@ -48,27 +74,23 @@ const MinBlock = styled.li`
     cursor: pointer;
   }
 `;
+
 const UlMinBlock = styled.ul`
   display: flex;
   flex-direction: column;
-  gap: 30px;
-  padding-top: ${({ $PaddingTopForm }) => ($PaddingTopForm ? "10px" : "15px")};
+  gap: 20px;
+  padding-top: 5px;
+  padding-right: 10px;
+  margin: 0 0 10px 0;
+  list-style: none;
 `;
+
 const UlList = styled.ul`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 25px;
 
-  .editing__container {
-    width: 608px;
-    height: 260px;
-    background: #e2edd0;
-    border-radius: 7px;
-    list-style-type: none;
-    display: flex;
-    align-items: center;
-  }
   .editing__block-Two {
     padding: 0px 30px 30px 20px;
   }
@@ -77,9 +99,25 @@ const UlList = styled.ul`
     font-family: "Montserrat";
     font-size: 16px;
   }
-  .editing__block-inp {
+  .editing__block-input {
+    width: 555px;
+    min-height: 100px;
+    border-radius: 7px;
+    border-style: none;
+    color: #000;
+    font-family: "Montserrat";
+    font-size: 16px;
+    line-height: 27px;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 10px 15px;
+  }
+  .editing__block-name {
     display: flex;
-    align-items: center;
+    align-items: baseline;
+    gap: 8px;
   }
   .some-input {
     border: none;
@@ -89,31 +127,6 @@ const UlList = styled.ul`
     outline: none;
     margin-left: 5px;
     font-family: "Montserrat";
-  }
-  .editing__block-input {
-    width: 555px;
-    height: 100px;
-    border-radius: 7px;
-    border-style: none;
-    color: #000;
-    font-family: "Montserrat";
-    font-size: 16px;
-    line-height: 27px;
-    outline: none;
-  }
-  .editing__block-bth {
-    display: flex;
-    gap: 10px;
-  }
-  .editing__block {
-    padding: 0px 30px 0px 20px;
-    display: flex;
-    gap: 75px;
-    align-items: baseline;
-  }
-  .editing__block-name {
-    display: flex;
-    align-items: baseline;
   }
   .block__button {
     display: flex;
@@ -147,34 +160,119 @@ const UlList = styled.ul`
     width: 1248px;
   }
 `;
+
 const List = styled.li`
   width: ${({ $Block }) => ($Block ? "1248px" : "608px")};
-  height: ${({ $Block }) => ($Block ? "59px" : "260px")};
+  min-height: ${({ $Block }) => ($Block ? "80px" : "260px")};
   background-color: ${({ $Back }) => ($Back ? "#E2EDD0" : "#D5DEF6")};
   border-radius: 7px;
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
   gap: 20px;
   list-style-type: none;
+`;
 
-  &.subject-block {
-    width: 1248px; /* Устанавливаем максимальную ширину */
-    height: 59px; /* Сохраняем высоту для единообразия */
+const TitleInput = styled.input`
+  width: calc(100% - 40px);
+  max-width: 1175px;
+  height: 80px;
+  font-size: 18px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 7px;
+  outline: none;
+  font-family: "Montserrat";
+  background-color: #ffffff;
+`;
+
+const TestsIOBlock = styled.div`
+  width: 1248px;
+  background-color: #d5def6;
+  border-radius: 10px;
+  padding: 20px;
+  .tests-input-title {
+    font-size: 19px;
+    font-family: "Montserrat";
+    font-weight: 500;
+    margin-bottom: 15px;
   }
-
-  .input__const {
-    height: 45px;
-    border-radius: 5px;
-    background-color: #ffffff;
+  .tests-input {
+    margin-bottom: 15px;
+  }
+  .hint {
+    font-size: 14px;
+    font-family: "Montserrat";
+    color: #555;
+    margin: 5px 0;
+  }
+  .tools {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+  }
+  .tool-icon {
+    font-size: 28px;
+    cursor: pointer;
+    color: #333;
+    &:hover {
+      color: #4caf50;
+    }
+  }
+  .textarea {
+    width: 100%;
+    height: 150px;
+    border-radius: 7px;
     border: none;
+    padding: 10px;
+    font-family: "Montserrat";
+    font-size: 14px;
     outline: none;
-    font-size: 16px;
-    width: 572px;
+    resize: vertical;
   }
 `;
+
+const RestrictionsBlock = styled.div`
+  width: 1248px;
+  background-color: #e2edd0;
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+`;
+
+const RestrictionRoom = styled.div`
+  width: calc(20% - 16px);
+  min-width: 200px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  .room-title {
+    font-size: 16px;
+    font-family: "Montserrat";
+    font-weight: 500;
+    margin: 0;
+  }
+  .room-input {
+    height: 40px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 0 10px;
+    font-family: "Montserrat";
+    font-size: 14px;
+    outline: none;
+    &:focus {
+      border-color: #4caf50;
+    }
+  }
+`;
+
 const TitleBlock = styled.h3`
   color: #000;
   font-family: "Montserrat";
@@ -184,6 +282,7 @@ const TitleBlock = styled.h3`
   padding-left: ${({ $Padding }) => ($Padding ? "45px" : "0px")};
   margin: ${({ $Margin }) => ($Margin ? "0px" : "none")};
 `;
+
 const ButtonAdd = styled.button`
   font-family: "Montserrat";
   width: ${({ $ButtonAddW }) => ($ButtonAddW ? "400px" : "274px")};
@@ -196,35 +295,19 @@ const ButtonAdd = styled.button`
   &:hover {
     background: #c8d5f6;
     color: #fff;
-    border-style: none;
-    transition: 0.5s;
   }
 `;
-const FormBlock = styled.li`
-  display: flex;
-  flex-direction: column;
-  padding: 5px;
-  gap: 2px;
-  width: 100%; /* Устанавливаем ширину на 100% для заполнения блока */
-`;
-const FormInput = styled.input`
+
+const FormSelect = styled.select`
   height: 45px;
   border-radius: 5px;
   background-color: #ffffff;
   border: none;
   outline: none;
   font-size: 16px;
+  font-family: "Montserrat";
+  padding: 0 10px;
   width: 100%;
-`;
-const NameLabInput = styled.textarea`
-  display: flex;
-  border: none;
-  background: none;
-  width: 608px;
-  height: 260px;
-  font-size: 18px;
-  padding: 15px 0px 0px 35px;
-  outline: none;
 `;
 
 const Notification = styled.div`
@@ -238,76 +321,74 @@ const Notification = styled.div`
   font-size: 14px;
   background-color: ${({ $isSuccess }) => ($isSuccess ? "#28a745" : "#dc3545")};
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  transform: translateY(${({ $visible }) => ($visible ? "0" : "20px")});
-  transition:
-    opacity 0.5s ease,
-    transform 0.5s ease;
+  transition: opacity 0.5s ease, transform 0.5s ease;
   z-index: 1000;
 `;
 
-const FormSelect = styled.select`
-  height: 45px;
-  border-radius: 5px;
-  background-color: #ffffff;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  font-family: "Montserrat";
-  padding: 0 10px;
-  width: 100%; /* Устанавливаем ширину на 100% для заполнения FormBlock */
+const TwoColumnRow = styled.div`
+  display: flex;
+  gap: 25px;
+  width: 1248px;
+  > * {
+    flex: 1;
+  }
 `;
 
+// ===================== КОМПОНЕНТ =====================
 const LaboratoryAdd = () => {
+  const navigate = useNavigate();
+
+  // Состояния
   const [labTitle, setLabTitle] = useState("");
   const [labDescription, setLabDescription] = useState("");
-  const [formula, setFormula] = useState("");
-  const [inputVariables, setInputVariables] = useState("");
-  const [subjectId, setSubjectId] = useState("");
-  const [selectedGroup, setSelectedGroup] = useState(""); // NEW
-  const [groups, setGroups] = useState([]); // NEW
-  const [subjects, setSubjects] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState("");
+  const [groups, setGroups] = useState([]);
   const [tests, setTests] = useState([]);
   const [newTest, setNewTest] = useState({ inp: "", out: "" });
+  const [bulkTestsText, setBulkTestsText] = useState("");
+  const fileInputRef = useRef(null);
+
+  const [maxVariables, setMaxVariables] = useState("");
+  const [codeLength, setCodeLength] = useState("");
+  const [attemptsCount, setAttemptsCount] = useState("");
+  const [speedLimit, setSpeedLimit] = useState("");
+  const [memoryLimit, setMemoryLimit] = useState("");
+
   const [responseMessage, setResponseMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
-  const navigate = useNavigate();
 
+  // Загрузка групп
   useEffect(() => {
-    getSubjects()
-      .then((res) => setSubjects(res.data))
-      .catch((error) => {
-        console.error("Ошибка при загрузке предметов:", error);
-        setResponseMessage("Ошибка при загрузке предметов");
-        setIsSuccess(false);
-      });
-
-    getGroups()
-      .then((res) => setGroups(res.data))
-      .catch((error) => {
-        console.error("Ошибка при загрузке групп:", error);
-        setResponseMessage("Ошибка при загрузке групп");
-        setIsSuccess(false);
-      });
+    const fetchGroups = async () => {
+      try {
+        const res = await api.get("/groups");
+        setGroups(res.data);
+      } catch (err) {
+        console.error("Ошибка загрузки групп:", err);
+      }
+    };
+    fetchGroups();
   }, []);
 
   useEffect(() => {
     if (responseMessage) {
       setShowNotification(true);
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         setShowNotification(false);
         setResponseMessage("");
       }, 3000);
-      return () => clearTimeout(timer);
     }
   }, [responseMessage]);
 
-  const handleNewTestChange = (field, value) => {
-    setNewTest((prevState) => ({ ...prevState, [field]: value }));
-  };
-
+  // Тесты
   const handleAddTest = () => {
-    setTests([...tests, { id: tests.length + 1, ...newTest }]);
+    if (!newTest.inp.trim() && !newTest.out.trim()) {
+      setResponseMessage("Заполните хотя бы одно поле теста!");
+      setIsSuccess(false);
+      return;
+    }
+    setTests([...tests, { id: Date.now(), inp: newTest.inp, out: newTest.out }]);
     setNewTest({ inp: "", out: "" });
   };
 
@@ -315,137 +396,171 @@ const LaboratoryAdd = () => {
     setTests(tests.filter((_, i) => i !== index));
   };
 
-  const sendDataToServer = async (data) => {
-    createLab(data)
-      .then((res) => {
-        setResponseMessage("Лабораторная работа успешно добавлена!");
-        setIsSuccess(true);
-      })
-      .catch((error) => {
-        console.error("Ошибка при отправке запроса:", error);
-        setResponseMessage("Ошибка при добавлении лабораторной работы");
-        setIsSuccess(false);
-      });
+  // Импорт тестов
+  const importTestsFromText = () => {
+    if (!bulkTestsText.trim()) {
+      setResponseMessage("Нет текста для импорта!");
+      setIsSuccess(false);
+      return;
+    }
+    const lines = bulkTestsText.split(/\r?\n/);
+    const newTests = [];
+    for (const line of lines) {
+      if (line.includes("->")) {
+        const [inp, out] = line.split("->").map((s) => s.trim());
+        if (inp && out) {
+          newTests.push({ id: Date.now() + Math.random(), inp, out });
+        }
+      }
+    }
+    if (newTests.length === 0) {
+      setResponseMessage("Не найдено тестов в формате input -> output");
+      setIsSuccess(false);
+    } else {
+      setTests((prev) => [...prev, ...newTests]);
+      setBulkTestsText("");
+      setResponseMessage(`Импортировано ${newTests.length} тестов`);
+      setIsSuccess(true);
+    }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  // Автоподстройка высоты textarea под содержимое (без ручного растягивания)
+  const autoResizeTextarea = (e) => {
+    e.target.style.height = "auto";
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  };
 
-    if (
-      !labTitle.trim() ||
-      !labDescription.trim() ||
-      !formula.trim() ||
-      !inputVariables.trim() ||
-      !subjectId ||
-      !selectedGroup ||
-      tests.length === 0
-    ) {
-      setResponseMessage("Заполните все поля!");
+  const onPickFile = () => fileInputRef.current?.click();
+  const onFileSelected = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setBulkTestsText(ev.target?.result || "");
+    reader.readAsText(file);
+  };
+
+  // Отправка
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!labTitle.trim()) {
+      setResponseMessage("Введите название!");
+      setIsSuccess(false);
+      return;
+    }
+    if (!selectedGroup) {
+      setResponseMessage("Выберите группу!");
+      setIsSuccess(false);
+      return;
+    }
+    if (tests.length === 0) {
+      setResponseMessage("Добавьте хотя бы один тест!");
       setIsSuccess(false);
       return;
     }
 
-    const newData = {
+    const payload = {
       task: {
-        id: 1,
+        id: 0,
         name: labTitle,
-        description: labDescription,
-        teacher_formula: formula,
-        input_variables: inputVariables,
-        subject_id: parseInt(subjectId),
-        group_id: parseInt(selectedGroup), // добавлено
-        test_cases: tests.map((test, index) => ({
-          id: index + 1,
-          inp: test.inp,
-          out: test.out,
+        description: labDescription || "",
+        teacher_formula: "",
+        input_variables: "",
+        subject_id: 1, // пока фиксируем, потом добавим выбор предмета
+        group_id: parseInt(selectedGroup),
+        test_cases: tests.map((t, idx) => ({
+          id: idx + 1,
+          inp: t.inp,
+          out: t.out,
         })),
       },
     };
 
-    sendDataToServer(newData);
+    try {
+      await api.post("/lab", payload);
+      setResponseMessage("Лабораторная работа создана!");
+      setIsSuccess(true);
+      setTimeout(() => navigate("/teacher/labs"), 1500);
+    } catch (err) {
+      console.error(err);
+      setResponseMessage(err.response?.data?.error || "Ошибка создания");
+      setIsSuccess(false);
+    }
   };
 
   return (
     <>
       <Section onSubmit={handleSubmit}>
         <UlList>
-          <List>
-            <NameLabInput
+          {/* ЭТАЖ 1: Название */}
+          <List $Block style={{ width: "1248px", height: "120px", padding: "0" }}>
+            <TitleInput
               type="text"
               placeholder="Введите название лабораторной работы"
-              onChange={(e) => setLabTitle(e.target.value)}
               value={labTitle}
+              onChange={(e) => setLabTitle(e.target.value)}
             />
           </List>
-          <List>
-            <div className="editing__block-Two">
-              <TitleBlock>Описание лабораторной</TitleBlock>
-              <p className="editing__block-text">
-                Введите описание лабораторной работы
-              </p>
-              <textarea
-                className="editing__block-input"
-                type="text"
-                onChange={(e) => setLabDescription(e.target.value)}
-                placeholder="Введите текст"
-                value={labDescription}
-              />
-            </div>
-          </List>
-          <List $Back>
-            <div className="editing__block-Two">
-              <TitleBlock>Выбор группы</TitleBlock>
-              <p className="editing__block-text">
-                Выберите группы, которым будет доступна лабораторная работа
-              </p>
-              <FormSelect
-                value={selectedGroup}
-                onChange={(e) => setSelectedGroup(e.target.value)}
-              >
-                <option value="">Группа</option>
-                {groups.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                  </option>
-                ))}
-              </FormSelect>
-            </div>
-          </List>
-          <BigBlock $BigFon $BigHeight $BigWeight $GapForm>
+
+          {/* ЭТАЖ 2: Описание + Группа */}
+          <TwoColumnRow>
+            <List>
+              <div className="editing__block-Two">
+                <TitleBlock>Описание лабораторной</TitleBlock>
+                <p className="editing__block-text">Введите описание</p>
+                <textarea
+                  className="editing__block-input"
+                  onChange={(e) => {
+                    setLabDescription(e.target.value);
+                    autoResizeTextarea(e);
+                  }}
+                  placeholder="Введите текст"
+                  value={labDescription}
+                />
+              </div>
+            </List>
+            <List $Back>
+              <div className="editing__block-Two">
+                <TitleBlock>Выбор группы</TitleBlock>
+                <p className="editing__block-text">Выберите группу</p>
+                <FormSelect
+                  value={selectedGroup}
+                  onChange={(e) => setSelectedGroup(e.target.value)}
+                >
+                  <option value="">Группа</option>
+                  {groups.map((g) => (
+                    <option key={g.id} value={g.id}>
+                      {g.name}
+                    </option>
+                  ))}
+                </FormSelect>
+              </div>
+            </List>
+          </TwoColumnRow>
+
+          {/* ЭТАЖ 3: Тесты */}
+          <BigBlock $BigFon $BigHeight $GapForm>
             <div className="block__one">
               <TitleBlock $Padding>Список тестов:</TitleBlock>
               <UlMinBlock>
-                {tests.map((test, index) => (
-                  <MinBlock key={index}>
+                {tests.map((test, idx) => (
+                  <MinBlock key={test.id}>
                     <TitleBlock $FontSize $FontWeight $Margin>
-                      Тест {index + 1}
+                      Тест {idx + 1}
                     </TitleBlock>
                     <div className="editing__block-name">
                       <TitleBlock $FontSize $FontWeight $Margin>
                         Входные данные:
                       </TitleBlock>
-                      <input
-                        type="text"
-                        className="some-input"
-                        value={test.inp}
-                        readOnly
-                      />
+                      <input type="text" className="some-input" value={test.inp} readOnly />
                     </div>
                     <div className="editing__block-name">
                       <TitleBlock $FontSize $FontWeight $Margin>
                         Вывод:
                       </TitleBlock>
-                      <input
-                        type="text"
-                        className="some-input"
-                        value={test.out}
-                        readOnly
-                      />
+                      <input type="text" className="some-input" value={test.out} readOnly />
                     </div>
-                    <IoIosClose
-                      className="icon"
-                      onClick={() => handleRemoveTest(index)}
-                    />
+                    <IoIosClose className="icon" onClick={() => handleRemoveTest(idx)} />
                   </MinBlock>
                 ))}
               </UlMinBlock>
@@ -453,25 +568,21 @@ const LaboratoryAdd = () => {
             <div className="block__test">
               <TitleBlock>Добавить новый тест:</TitleBlock>
               <div className="editing__block-name">
-                <TitleBlock $FontSize $FontWeight>
-                  Входные данные:
-                </TitleBlock>
+                <TitleBlock $FontSize $FontWeight>Входные данные:</TitleBlock>
                 <input
                   type="text"
                   className="some-input"
                   value={newTest.inp}
-                  onChange={(e) => handleNewTestChange("inp", e.target.value)}
+                  onChange={(e) => setNewTest({ ...newTest, inp: e.target.value })}
                 />
               </div>
               <div className="editing__block-name">
-                <TitleBlock $FontSize $FontWeight>
-                  Вывод:
-                </TitleBlock>
+                <TitleBlock $FontSize $FontWeight>Вывод:</TitleBlock>
                 <input
                   type="text"
                   className="some-input"
                   value={newTest.out}
-                  onChange={(e) => handleNewTestChange("out", e.target.value)}
+                  onChange={(e) => setNewTest({ ...newTest, out: e.target.value })}
                 />
               </div>
               <ButtonAdd $ButtonAddW type="button" onClick={handleAddTest}>
@@ -479,49 +590,93 @@ const LaboratoryAdd = () => {
               </ButtonAdd>
             </div>
           </BigBlock>
-          <BigBlock>
-            <div className="block__test">
-              <TitleBlock $Padding>Формула и переменные</TitleBlock>
-              <UlMinBlock>
-                <FormBlock>
-                  <FormInput
-                    type="text"
-                    value={formula}
-                    onChange={(e) => setFormula(e.target.value)}
-                    placeholder="Введите формулу (например, x + y)"
-                  />
-                </FormBlock>
-                <FormBlock>
-                  <FormInput
-                    type="text"
-                    value={inputVariables}
-                    onChange={(e) => setInputVariables(e.target.value)}
-                    placeholder="Введите входные переменные (например, a, b)"
-                  />
-                </FormBlock>
-              </UlMinBlock>
+
+          {/* ЭТАЖ 4: Импорт тестов */}
+          <TestsIOBlock>
+            <p className="tests-input-title">Форма для ввода или загрузки тестов</p>
+            <div className="tests-input">
+              <TitleBlock $FontWeight>Введите тесты в формате:</TitleBlock>
+              <div className="hint">input1 -&gt; expected_output1</div>
+              <div className="hint">input2 -&gt; expected_output2</div>
+              <div className="tools">
+                <IoFolderOpenOutline className="tool-icon" onClick={onPickFile} />
+                <IoCloudUploadOutline className="tool-icon" onClick={onPickFile} />
+                <input
+                  type="file"
+                  accept=".txt"
+                  ref={fileInputRef}
+                  onChange={onFileSelected}
+                  style={{ display: "none" }}
+                />
+              </div>
+              <textarea
+                className="textarea"
+                placeholder="Введите тесты в формате: input -> output"
+                value={bulkTestsText}
+                onChange={(e) => setBulkTestsText(e.target.value)}
+              />
             </div>
-          </BigBlock>
-          <List className="subject-block">
-            <FormBlock>
-              <FormSelect
-                value={subjectId}
-                onChange={(e) => setSubjectId(e.target.value)}
-              >
-                <option value="">Выберите предмет</option>
-                {subjects.map((subject) => (
-                  <option key={subject.id} value={subject.id}>
-                    {subject.name}
-                  </option>
-                ))}
-              </FormSelect>
-            </FormBlock>
-          </List>
+            <ButtonAdd onClick={importTestsFromText}>Импортировать тесты</ButtonAdd>
+          </TestsIOBlock>
+
+          {/* ЭТАЖ 5: Ограничения */}
+          <RestrictionsBlock>
+            <RestrictionRoom>
+              <p className="room-title">Количество переменных</p>
+              <input
+                type="text"
+                className="room-input"
+                placeholder="Максимум переменных"
+                value={maxVariables}
+                onChange={(e) => setMaxVariables(e.target.value)}
+              />
+            </RestrictionRoom>
+            <RestrictionRoom>
+              <p className="room-title">Длина кода</p>
+              <input
+                type="text"
+                className="room-input"
+                placeholder="Максимальная длина кода"
+                value={codeLength}
+                onChange={(e) => setCodeLength(e.target.value)}
+              />
+            </RestrictionRoom>
+            <RestrictionRoom>
+              <p className="room-title">Количество попыток</p>
+              <input
+                type="text"
+                className="room-input"
+                placeholder="Максимум попыток"
+                value={attemptsCount}
+                onChange={(e) => setAttemptsCount(e.target.value)}
+              />
+            </RestrictionRoom>
+            <RestrictionRoom>
+              <p className="room-title">Скорость работы</p>
+              <input
+                type="text"
+                className="room-input"
+                placeholder="Ограничение по времени (сек)"
+                value={speedLimit}
+                onChange={(e) => setSpeedLimit(e.target.value)}
+              />
+            </RestrictionRoom>
+            <RestrictionRoom>
+              <p className="room-title">Используемая память</p>
+              <input
+                type="text"
+                className="room-input"
+                placeholder="Ограничение по памяти (МБ)"
+                value={memoryLimit}
+                onChange={(e) => setMemoryLimit(e.target.value)}
+              />
+            </RestrictionRoom>
+          </RestrictionsBlock>
+
+          {/* ЭТАЖ 6: Кнопка */}
           <div className="block__button">
             <button className="block__end" type="submit">
-              <span className="block__end-link">
-                Завершить редактирование и добавить лабораторную
-              </span>
+              <span className="block__end-link">Завершить редактирование и добавить лабораторную</span>
             </button>
           </div>
         </UlList>
@@ -536,4 +691,3 @@ const LaboratoryAdd = () => {
 };
 
 export default LaboratoryAdd;
-

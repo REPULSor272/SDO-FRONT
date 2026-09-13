@@ -5,7 +5,6 @@ import axios from "axios";
 import { IoIosClose } from "react-icons/io";
 import { IoFolderOpenOutline, IoCloudUploadOutline } from "react-icons/io5";
 
-// API
 const API_BASE_URL = "http://localhost:8000/api/teachers";
 
 const api = axios.create({
@@ -21,7 +20,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ===================== СТИЛИ =====================
 const Section = styled.form`
   display: flex;
   justify-content: center;
@@ -334,11 +332,9 @@ const TwoColumnRow = styled.div`
   }
 `;
 
-// ===================== КОМПОНЕНТ =====================
 const LaboratoryAdd = () => {
   const navigate = useNavigate();
 
-  // Состояния
   const [labTitle, setLabTitle] = useState("");
   const [labDescription, setLabDescription] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("");
@@ -358,7 +354,6 @@ const LaboratoryAdd = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
 
-  // Загрузка групп
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -381,7 +376,6 @@ const LaboratoryAdd = () => {
     }
   }, [responseMessage]);
 
-  // Тесты
   const handleAddTest = () => {
     if (!newTest.inp.trim() && !newTest.out.trim()) {
       setResponseMessage("Заполните хотя бы одно поле теста!");
@@ -396,7 +390,6 @@ const LaboratoryAdd = () => {
     setTests(tests.filter((_, i) => i !== index));
   };
 
-  // Импорт тестов
   const importTestsFromText = () => {
     if (!bulkTestsText.trim()) {
       setResponseMessage("Нет текста для импорта!");
@@ -424,7 +417,6 @@ const LaboratoryAdd = () => {
     }
   };
 
-  // Автоподстройка высоты textarea под содержимое (без ручного растягивания)
   const autoResizeTextarea = (e) => {
     e.target.style.height = "auto";
     e.target.style.height = `${e.target.scrollHeight}px`;
@@ -439,7 +431,6 @@ const LaboratoryAdd = () => {
     reader.readAsText(file);
   };
 
-  // Отправка
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -466,7 +457,7 @@ const LaboratoryAdd = () => {
         description: labDescription || "",
         teacher_formula: "",
         input_variables: "",
-        subject_id: 1, // пока фиксируем, потом добавим выбор предмета
+        subject_id: 1,
         group_id: parseInt(selectedGroup),
         test_cases: tests.map((t, idx) => ({
           id: idx + 1,

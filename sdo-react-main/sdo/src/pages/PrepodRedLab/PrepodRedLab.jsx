@@ -5,7 +5,6 @@ import axios from "axios";
 import { IoIosClose } from "react-icons/io";
 import { IoFolderOpenOutline, IoCloudUploadOutline } from "react-icons/io5";
 
-// ===================== API =====================
 const API_BASE_URL = "http://localhost:8000/api/teachers";
 
 const api = axios.create({
@@ -21,7 +20,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ===================== СТИЛИ (ВСЕ КОМПОНЕНТЫ) =====================
 const Section = styled.form`
   display: flex;
   justify-content: center;
@@ -334,7 +332,6 @@ const TwoColumnRow = styled.div`
   }
 `;
 
-// ===================== КОМПОНЕНТ =====================
 const PrepodRedLab = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -362,14 +359,12 @@ const PrepodRedLab = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
 
-  // Автоподстройка высоты textarea под содержимое (без ручного растягивания)
   const autoResizeTextarea = (element) => {
     if (!element) return;
     element.style.height = "auto";
     element.style.height = `${element.scrollHeight}px`;
   };
 
-  // Загрузка групп
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -382,7 +377,6 @@ const PrepodRedLab = () => {
     fetchGroups();
   }, []);
 
-  // Загрузка данных лабы
   useEffect(() => {
     const fetchLab = async () => {
       try {
@@ -404,7 +398,6 @@ const PrepodRedLab = () => {
     if (id) fetchLab();
   }, [id]);
 
-  // Подгоняем высоту textarea сразу после того, как описание подгрузилось с сервера
   useEffect(() => {
     autoResizeTextarea(descriptionRef.current);
   }, [labDescription, loading]);
@@ -429,7 +422,6 @@ const PrepodRedLab = () => {
     }
   };
 
-  // Тесты
   const handleAddTest = () => {
     if (!newTest.inp.trim() && !newTest.out.trim()) {
       setResponseMessage("Заполните хотя бы одно поле теста!");
@@ -450,7 +442,6 @@ const PrepodRedLab = () => {
     );
   };
 
-  // Импорт тестов
   const importTestsFromText = () => {
     if (!bulkTestsText.trim()) {
       setResponseMessage("Нет текста для импорта!");
@@ -487,7 +478,6 @@ const PrepodRedLab = () => {
     reader.readAsText(file);
   };
 
-  // Сохранение
   const handleSave = async () => {
     if (!labTitle.trim()) {
       setResponseMessage("Введите название!");

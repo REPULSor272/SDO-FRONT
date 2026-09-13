@@ -1,5 +1,5 @@
 import { appApiIns } from "./app-api";
 
 export function getTasks() {
-    return appApiIns.get('labs');
+    return appApiIns.get('/api/labs');
 }

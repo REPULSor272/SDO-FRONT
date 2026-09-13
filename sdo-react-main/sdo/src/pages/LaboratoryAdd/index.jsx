@@ -5,7 +5,7 @@ import axios from "axios";
 import { IoIosClose } from "react-icons/io";
 import { IoFolderOpenOutline, IoCloudUploadOutline } from "react-icons/io5";
 
-const API_BASE_URL = "http://localhost:8000/api/teachers";
+const API_BASE_URL = `${process.env.REACT_APP_API_URL}/api/teachers`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,

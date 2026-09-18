@@ -152,7 +152,7 @@ const MainRouter = ({ setIsLoggedIn }) => {
 
         <Route path="*" element={<Navigate to="/" />} />
         
-        <Route path="/checklabteacher" element={
+        <Route path="/checklabteacher/:task_id" element={
           <ProtectedRoute allowedRoles={["teacher"]}>
             <СheckLabTeacher></СheckLabTeacher>
           </ProtectedRoute>

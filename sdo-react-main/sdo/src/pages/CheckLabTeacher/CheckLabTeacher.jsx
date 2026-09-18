@@ -1,5 +1,5 @@
 import * as S from './CheckLabTeacher.styles'
-import { useParams } from 'react';
+import { useParams } from 'react-router-dom';
 import { getTaskById } from '../../api/file-api';
 import React, { useState, useEffect } from 'react';
 import { getGroups } from '../../api/teacher-api';
@@ -7,17 +7,17 @@ import StudentLab from './components/StudentLab';
 
 
 const CheckLabTeacher = () => {
-    /*const { taskId } = useParams();
+    const { task_id } = useParams();
     useEffect(() => {
-        console.log('Загрузка задачи с ID:', taskId);
-        getTaskById(taskId)
+        console.log('Загрузка задачи с ID:', task_id);
+        getTaskById(task_id)
           .then((res) => {
             console.log(res.data);
           })
           .catch((error) => {
             console.error('Ошибка загрузки задачи:', error.message);
           });
-      }, [taskId]);*/
+      }, [task_id]);
 
     const [searchValue, setSearchValue] = useState("");
     const [groups, setGroups] = useState([]);

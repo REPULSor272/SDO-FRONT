@@ -47,7 +47,7 @@ const StudentLab = ({name, isSubmitted, score}) => {
                             type="text"
                             value={scoreInput}
                             onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => setScoreInput(e.target.value)}
+                            onChange={(e) => {if ( 0 <= Number(e.target.value) && Number(e.target.value) <= 100) setScoreInput(e.target.value)}}
                             onBlur={() => {
                                 handleSaveScore(); 
                                 setIsEditingScore(false);

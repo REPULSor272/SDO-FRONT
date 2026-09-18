@@ -739,7 +739,7 @@ const Laboratory = () => {
                   <SpnLab>
                     <Link
                       to={`/checklabteacher/${item.id}`}
-                      className="section__lab-edit"
+                      className="section__lab-edit" style={{width:"220px"}}
                     >
                       Просмотр результатов
                     </Link>

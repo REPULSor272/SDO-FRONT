@@ -516,6 +516,7 @@ const Laboratory = () => {
   const [labItemsToShow, setLabItemsToShow] = useState([]);
 
   const [searchValue, setSearchValue] = useState("");
+  const [selectedGroup, setSelectedGroup] = useState("");
   const [notification, setNotification] = useState({
     message: "",
     visible: false,
@@ -671,15 +672,20 @@ const Laboratory = () => {
   }, []);
 
   useEffect(() => {
-    if (searchValue.length < 0) {
-      setLabItemsToShow(labItems);
+    let filtered = labItems;
+
+    if (searchValue) {
+      filtered = filtered.filter((lab) => lab.name.includes(searchValue));
     }
-    if (Array.isArray(labItems) && labItems.length > 0) {
-      setLabItemsToShow(
-        labItems.filter((lab) => lab.name.includes(searchValue)),
+
+    if (selectedGroup) {
+      filtered = filtered.filter(
+        (lab) => Number(lab.group_id) === Number(selectedGroup),
       );
     }
-  }, [searchValue, labItems]);
+
+    setLabItemsToShow(filtered);
+  }, [searchValue, selectedGroup, labItems]);
 
   const getColors = (index) => {
     return index % 2 === 0
@@ -707,13 +713,21 @@ const Laboratory = () => {
           >
             Добавить новую Лабораторную работу
           </Link>
-          <select name="group_name" className="section__login-formSelect">
+          <select
+            name="group_name"
+            className="section__login-formSelect"
+            value={selectedGroup}
+            onChange={(e) => setSelectedGroup(e.target.value)}
+          >
+            <option value="">Все группы</option>
             {groups.length === 0 ? (
-              <option value="">Загрузка групп...</option>
+              <option value="" disabled>
+                Загрузка групп...
+              </option>
             ) : (
               groups.map((group) => (
-                <option key={group} value={group}>
-                  {group}
+                <option key={group.id} value={group.id}>
+                  {group.name}
                 </option>
               ))
             )}
@@ -724,7 +738,6 @@ const Laboratory = () => {
         ) : (
           <ListLab>
             {labItemsToShow.map((item, index) => {
-              console.log(item);
               const subject = subjects.find(
                 (subject) => Number(subject.id) === Number(SubjectId),
               );
@@ -787,4 +800,3 @@ const Laboratory = () => {
 };
 
 export default Laboratory;
-

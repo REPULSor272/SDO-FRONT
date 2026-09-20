@@ -751,6 +751,12 @@ const Laboratory = () => {
                   </NameLab>
                   <SpnLab>
                     <Link
+                      to={`/checklabteacher/${item.id}`}
+                      className="section__lab-edit" style={{width:"220px"}}
+                    >
+                      Просмотр результатов
+                    </Link>
+                    <Link
                       to={`/PrepodRedLab/${item.id}`}
                       className="section__lab-edit"
                     >

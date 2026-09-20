@@ -149,7 +149,7 @@ const Bread = () => {
     );
   });
 
-  return (
+  /*return (
     <nav aria-label="breadcrumbs">
       <Ul>
         <li className="list__bread">
@@ -160,7 +160,7 @@ const Bread = () => {
         {breadcrumbs}
       </Ul>
     </nav>
-  );
+  );*/
 };
 
 export default Bread;

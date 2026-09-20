@@ -1,0 +1,289 @@
+import styled from 'styled-components';
+import { FaSearch } from "react-icons/fa";
+
+export const container = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 0;
+  box-sizing: border-box;
+  color: black;
+`
+
+export const Description = styled.div`
+  width: 1125px;
+  background-color: #DDE5F8;
+  padding: 32px 64px;
+`
+
+export const DescriptionText = styled.p`
+  font-size: 16px;
+`
+
+export const DescriptionTextBold = styled.p`
+  font-size: 16px;
+  font-weight: bold
+`
+
+export const DescriptionTest = styled.div`
+  margin-top: 21px;
+
+`
+
+export const StudentList = styled.div`
+   width: 1248px;
+`
+export const StudentListUp = styled.div`
+  display: flex
+`
+
+export const StudentListH1 = styled.h1`
+   font-family: Montserrat;
+  font-weight: 500;
+  font-style: Medium;
+  font-size: 20px;
+  leading-trim: NONE;
+  line-height: 27px;
+  letter-spacing: 0%;
+`
+
+export const SearchInputContainer = styled.div`
+  position: relative;
+  width: 395px;
+  box-sizing: border-box;
+  flex: 1;
+`
+export const SearchInput = styled.input`
+  padding: 0;
+  width: 395px;
+  font-family: "Montserrat";
+  height: 47px;
+  box-sizing: border-box;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  font-size: 16px;
+  color: #000;
+  text-align: center;
+  &:focus {
+    outline: none;
+  }
+`
+
+export const Sort = styled.div`
+  margin-left: 377px;
+  display: flex;
+  justify-content: space-center;
+  gap: 20px;
+  align-items: center;
+`
+
+export const Select = styled.select`
+width: 231px;
+    font-family: "Montserrat";
+    cursor: pointer;
+    height: 47px;
+    border: none;
+    background-color: #f0f0f0;
+    padding: 0 10px;
+    font-size: 16px;
+    color: #000;
+    text-align: center;
+    border-radius: 8px;
+    box-sizing: border-box;
+    &:focus {
+      outline: none;
+    }
+`
+export const SearchIcon = styled(FaSearch)`
+  position: absolute;
+  right: 15px;
+  font-family: "Montserrat";
+  top: 50%;
+  transform: translateY(-50%);
+  color: #000;
+  cursor: pointer;
+  pointer-events: none;
+`
+
+export const StudentsLab = styled.div`
+  width: 1252px;
+  background: ${(props) => props.$color};
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 16px;
+  position: relative;
+` 
+
+export const StudentsLabText = styled.h1`
+font-family: Montserrat;
+font-weight: 500;
+font-size: 20px;
+line-height: 27px;
+letter-spacing: 0%;
+margin-left: 27px;
+`
+
+export const StudentsLabtn = styled.button`
+  background-color: #D9D9D9;
+  top: 15px;
+  left: 451px;
+  border-radius: 4px;
+  border: none;    
+  outline: none;
+  padding-top: 5px;
+  padding-right: 12px;
+  padding-bottom: 5px;
+  padding-left: 12px;
+  opacity: 1;
+  font-family: Montserrat;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 27px;
+  letter-spacing: 0%;
+  text-align: center;
+  cursor: pointer;
+`
+
+export const StudentLabResult = styled.div`
+  background-color: #D9D9D9;
+  color: ${(props) => props.$color};
+  font-family: Montserrat;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 27px;
+  letter-spacing: 0%;
+  text-align: center;
+  vertical-align: middle;
+  padding-top: 5px;
+  padding-right: 12px;
+  padding-bottom: 5px;
+  padding-left: 12px;
+  border-radius: 4px;
+`
+
+export const StudentLabDowland = styled.button`
+position:relative;
+width:38px;
+height:38px;
+border-radius: 4px;
+opacity: 1;
+border: none;    
+outline: none;
+padding-top: 5px;
+padding-right: 12px;
+padding-bottom: 5px;
+background-color: #D9D9D9;
+padding-left: 12px;
+cursor:pointer;
+`
+
+export const StudentLabChange = styled.div`
+  width: 260px;
+  height: 39px;
+  border-radius: 4px;
+  opacity: 1;
+  display: flex;
+  align-items: center;    
+  justify-content: center;
+  font-family: Montserrat;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 27px;
+  letter-spacing: 0%;
+  text-align: center;
+  background-color: #BECBEE;
+  cursor: pointer;
+  
+`
+
+export const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+`;
+
+export const StyledCheckbox = styled.div`
+  width: 20px;
+  height: 20px;
+  background-color: #D9D9D9;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  transition: all 150ms;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    visibility: ${(props) => (props.$checked ? 'visible' : 'hidden')};
+    fill: none;
+    stroke: black;
+    stroke-width: 3px;
+    pointer-events: none;
+  }
+`;
+
+export const CheckboxContainer = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 149px;
+  height: 39px;
+  cursor: default; 
+  background-color: #D9D9D9;
+  border: 0px solid #D9D9D9;
+  border-radius: 4px;
+  padding-left: 10px;
+  box-sizing: border-box;
+
+  span {
+    pointer-events: none; 
+    user-select: none;
+    font-family: Montserrat, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 27px;
+    letter-spacing: 0%;
+    text-align: center;
+  }
+`;
+
+export const StudentLabAction = styled.div`
+  display: flex;
+  position: absolute;
+  right:10px;
+  gap: 10px;
+`
+
+export const StudentLabNo = styled.div`
+  display: flex;
+  position: absolute;
+  right:10px;
+  `
+
+export const ScoreEditBox = styled.div`
+  input{
+    width: 35px;
+    margin-left: 10px;
+    font-family: Montserrat;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 27px;
+    letter-spacing: 0%;
+    text-align: center;
+    vertical-align: middle;
+    }
+`

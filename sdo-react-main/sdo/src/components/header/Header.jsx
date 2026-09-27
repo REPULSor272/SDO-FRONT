@@ -14,7 +14,7 @@ const HeaderWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 12px 40px 0 60px;
   box-sizing: border-box;
@@ -73,12 +73,11 @@ const Nav = styled.nav`
   justify-content: flex-end;
   align-items: center;
   flex-wrap: nowrap;
-  gap: 0;
+  gap: 16px;
   box-sizing: border-box;
   min-width: 0;
 
   .header__nav-lr {
-    margin-right: 40px;
     color: #415588;
     text-decoration: none;
     font-size: 16px;

@@ -176,7 +176,7 @@ const TitleInput = styled.input`
   max-width: 1175px;
   height: 80px;
   font-size: 18px;
-  padding: 0 20px;
+  //padding: 0 20px;
   border: none;
   border-radius: 7px;
   outline: none;
@@ -188,15 +188,17 @@ const TestsIOBlock = styled.div`
   width: 1248px;
   background-color: #d5def6;
   border-radius: 10px;
-  padding: 20px;
+  height: 450px;
   .tests-input-title {
     font-size: 19px;
     font-family: "Montserrat";
     font-weight: 500;
     margin-bottom: 15px;
+    margin-left: 20px;
   }
   .tests-input {
     margin-bottom: 15px;
+    margin-left: 20px;
   }
   .hint {
     font-size: 14px;
@@ -218,7 +220,7 @@ const TestsIOBlock = styled.div`
     }
   }
   .textarea {
-    width: 100%;
+    width: 96.5%;
     height: 150px;
     border-radius: 7px;
     border: none;
@@ -231,7 +233,7 @@ const TestsIOBlock = styled.div`
 `;
 
 const RestrictionsBlock = styled.div`
-  width: 1248px;
+  width: 1210px;
   background-color: #e2edd0;
   border-radius: 10px;
   padding: 20px;
@@ -289,6 +291,7 @@ const ButtonAdd = styled.button`
   background: #fff;
   height: 42px;
   cursor: pointer;
+  margin-left: 20px;
   &:hover {
     background: #c8d5f6;
     color: #fff;

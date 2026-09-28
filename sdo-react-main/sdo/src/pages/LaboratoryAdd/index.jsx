@@ -474,7 +474,7 @@ const LaboratoryAdd = () => {
       await api.post("/lab", payload);
       setResponseMessage("Лабораторная работа создана!");
       setIsSuccess(true);
-      setTimeout(() => navigate("/teacher/labs"), 1500);
+      setTimeout(() => navigate("/Laboratory"), 1500);
     } catch (err) {
       console.error(err);
       setResponseMessage(err.response?.data?.error || "Ошибка создания");

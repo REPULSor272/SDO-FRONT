@@ -618,17 +618,20 @@ const Laboratory = () => {
   const handleUpdateStatusLabClick = async (labId, index) => {
     const success = await toggleLab(labId);
     if (success) {
-      setLabItems((prevItems) =>
-        prevItems.map((item) =>
-          item.id === labId
-            ? {
-                ...item,
-                status:
-                  item.status === "published" ? "unpublished" : "published",
-              }
-            : item,
-        ),
-      );
+      setLabItems((prevItems) => {
+        const target = prevItems.find((item) => item.id === labId);
+        if (!target) return prevItems;
+
+        const updated = {
+          ...target,
+          status: target.status === "published" ? "unpublished" : "published",
+          updated_at: new Date().toISOString(),
+        };
+
+        const remaining = prevItems.filter((item) => item.id !== labId);
+        return [updated, ...remaining];
+      });
+
       setNotification({
         message: "Статус лабораторной работы успешно изменен!",
         visible: true,
@@ -651,6 +654,7 @@ const Laboratory = () => {
     }
   };
 
+
   const fetchSubjects = async () => {
     await getSubjects()
       .then((res) => {
@@ -671,11 +675,13 @@ const Laboratory = () => {
     fetchSubjects();
   }, []);
 
-  useEffect(() => {
-    let filtered = labItems;
+    useEffect(() => {
+    let filtered = [...labItems];
 
     if (searchValue) {
-      filtered = filtered.filter((lab) => lab.name.includes(searchValue));
+      filtered = filtered.filter((lab) =>
+        lab.name?.toLowerCase().includes(searchValue.toLowerCase())
+      );
     }
 
     if (selectedGroup) {
@@ -684,8 +690,18 @@ const Laboratory = () => {
       );
     }
 
+    filtered.sort((a, b) => {
+      const lastEditedId = localStorage.getItem("lastEditedLabId");
+
+      if (String(a.id) === String(lastEditedId)) return -1;
+      if (String(b.id) === String(lastEditedId)) return 1;
+
+      return Number(b.id) - Number(a.id);
+    });
+
     setLabItemsToShow(filtered);
   }, [searchValue, selectedGroup, labItems]);
+
 
   const getColors = (index) => {
     return index % 2 === 0

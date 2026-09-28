@@ -516,7 +516,8 @@ const PrepodRedLab = () => {
       await api.put(`/labs/${id}`, payload);
       setResponseMessage("Лабораторная работа обновлена!");
       setIsSuccess(true);
-      setTimeout(() => navigate("/teacher/labs"), 1500);
+      localStorage.setItem("lastEditedLabId", id)
+      setTimeout(() => navigate("/Laboratory"), 1500);
     } catch (err) {
       console.error(err);
       setResponseMessage(err.response?.data?.error || "Ошибка обновления");

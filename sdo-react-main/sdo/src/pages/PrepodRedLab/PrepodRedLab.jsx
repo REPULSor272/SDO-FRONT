@@ -87,6 +87,10 @@ const UlList = styled.ul`
   flex-wrap: wrap;
   justify-content: center;
   gap: 25px;
+  padding: 0;
+  margin: 40px auto;
+  width: 100%;
+  max-width: 1248px;
 
   .editing__block-Two {
     padding: 0px 30px 30px 20px;
@@ -169,19 +173,22 @@ const List = styled.li`
   justify-content: center;
   gap: 20px;
   list-style-type: none;
+  padding: 0 16px;
+  box-sizing: border-box;
 `;
 
 const TitleInput = styled.input`
-  width: calc(100% - 40px);
-  max-width: 1175px;
+  width: 100%;
+  max-width: 100%;
   height: 80px;
   font-size: 18px;
-  //padding: 0 20px;
+  padding: 0 20px;
   border: none;
   border-radius: 7px;
   outline: none;
   font-family: "Montserrat";
   background-color: #ffffff;
+  box-sizing: border-box;
 `;
 
 const TestsIOBlock = styled.div`
@@ -340,8 +347,6 @@ const PrepodRedLab = () => {
   const navigate = useNavigate();
 
   const [labTitle, setLabTitle] = useState("");
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editingTitle, setEditingTitle] = useState("");
   const [labDescription, setLabDescription] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("");
   const [groups, setGroups] = useState([]);
@@ -386,7 +391,6 @@ const PrepodRedLab = () => {
         const res = await api.get(`/labs/${id}`);
         const lab = res.data;
         setLabTitle(lab.name || "");
-        setEditingTitle(lab.name || "");
         setLabDescription(lab.description || "");
         setTests(lab.test_cases || []);
         setSelectedGroup(lab.group_id || "");
@@ -414,16 +418,6 @@ const PrepodRedLab = () => {
       }, 3000);
     }
   }, [responseMessage]);
-
-  const handleSaveTitle = () => {
-    if (editingTitle.trim()) {
-      setLabTitle(editingTitle.trim());
-      setIsEditingTitle(false);
-    } else {
-      setResponseMessage("Название не может быть пустым!");
-      setIsSuccess(false);
-    }
-  };
 
   const handleAddTest = () => {
     if (!newTest.inp.trim() && !newTest.out.trim()) {
@@ -519,7 +513,7 @@ const PrepodRedLab = () => {
       await api.put(`/labs/${id}`, payload);
       setResponseMessage("Лабораторная работа обновлена!");
       setIsSuccess(true);
-      localStorage.setItem("lastEditedLabId", id)
+      localStorage.setItem("lastEditedLabId", id);
       setTimeout(() => navigate("/Laboratory"), 1500);
     } catch (err) {
       console.error(err);
@@ -535,40 +529,13 @@ const PrepodRedLab = () => {
       <Section onSubmit={(e) => e.preventDefault()}>
         <UlList>
           {/* ЭТАЖ 1: Название */}
-          <List $Block style={{ width: "1248px", minHeight: "120px", padding: "20px" }}>
-            {!isEditingTitle ? (
-              <div style={{ width: "100%", textAlign: "center" }}>
-                <TitleBlock style={{ fontSize: "24px", marginBottom: "15px" }}>
-                  Текущее название: {labTitle}
-                </TitleBlock>
-                <ButtonAdd onClick={() => setIsEditingTitle(true)} style={{ width: "200px" }}>
-                  Изменить название
-                </ButtonAdd>
-              </div>
-            ) : (
-              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "15px", alignItems: "center" }}>
-                <TitleInput
-                  type="text"
-                  value={editingTitle}
-                  onChange={(e) => setEditingTitle(e.target.value)}
-                  autoFocus
-                />
-                <div style={{ display: "flex", gap: "15px" }}>
-                  <ButtonAdd onClick={handleSaveTitle} style={{ background: "#4CAF50", color: "white" }}>
-                    Сохранить
-                  </ButtonAdd>
-                  <ButtonAdd
-                    onClick={() => {
-                      setEditingTitle(labTitle);
-                      setIsEditingTitle(false);
-                    }}
-                    style={{ background: "#f44336", color: "white" }}
-                  >
-                    Отмена
-                  </ButtonAdd>
-                </div>
-              </div>
-            )}
+          <List $Block style={{ width: "1248px", height: "120px" }}>
+            <TitleInput
+              type="text"
+              placeholder="Введите название лабораторной работы"
+              value={labTitle}
+              onChange={(e) => setLabTitle(e.target.value)}
+            />
           </List>
 
           {/* ЭТАЖ 2: Описание + Группа */}

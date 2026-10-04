@@ -88,6 +88,10 @@ const UlList = styled.ul`
   flex-wrap: wrap;
   justify-content: center;
   gap: 25px;
+  padding: 0;
+  margin: 16px auto;
+  width: 100%;
+  max-width: 1248px;
 
   .editing__block-Two {
     padding: 0px 30px 30px 20px;
@@ -170,19 +174,22 @@ const List = styled.li`
   justify-content: center;
   gap: 20px;
   list-style-type: none;
+  padding: 0 16px;              /* ← ДОБАВИТЬ */
+  box-sizing: border-box;
 `;
 
 const TitleInput = styled.input`
-  width: calc(100% - 40px);
-  max-width: 1175px;
+  width: 100%;
+  max-width: 100%;
   height: 80px;
   font-size: 18px;
-  //padding: 0 20px;
+  padding: 0 20px;
   border: none;
   border-radius: 7px;
   outline: none;
   font-family: "Montserrat";
   background-color: #ffffff;
+  box-sizing: border-box;
 `;
 
 const TestsIOBlock = styled.div`
@@ -487,7 +494,7 @@ const LaboratoryAdd = () => {
       <Section onSubmit={handleSubmit}>
         <UlList>
           {/* ЭТАЖ 1: Название */}
-          <List $Block style={{ width: "1248px", height: "120px", padding: "0" }}>
+          <List $Block style={{ width: "1248px", height: "120px" }}>
             <TitleInput
               type="text"
               placeholder="Введите название лабораторной работы"

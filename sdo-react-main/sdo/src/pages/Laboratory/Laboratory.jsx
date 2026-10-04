@@ -720,14 +720,7 @@ const Laboratory = () => {
       }
     }
 
-    filtered.sort((a, b) => {
-      const lastEditedId = localStorage.getItem("lastEditedLabId");
-
-      if (String(a.id) === String(lastEditedId)) return -1;
-      if (String(b.id) === String(lastEditedId)) return 1;
-
-      return Number(b.id) - Number(a.id);
-    });
+    filtered.sort((a, b) => Number(a.id) - Number(b.id));
     setLabItemsToShow(filtered);
   }, [searchValue, selectedGroup, selectedSubject, labItems, subjects]);
 

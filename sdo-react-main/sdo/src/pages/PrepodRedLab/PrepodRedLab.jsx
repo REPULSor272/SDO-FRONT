@@ -316,6 +316,7 @@ const FormSelect = styled.select`
   font-family: "Montserrat";
   padding: 0 10px;
   width: 100%;
+  margin-bottom: 12px;
 `;
 
 const Notification = styled.div`
@@ -350,6 +351,8 @@ const PrepodRedLab = () => {
   const [labDescription, setLabDescription] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("");
   const [groups, setGroups] = useState([]);
+  const [subjectId, setSubjectId] = useState("");
+  const [subjects, setSubjects] = useState([]);
   const [tests, setTests] = useState([]);
   const [newTest, setNewTest] = useState({ inp: "", out: "" });
   const [bulkTestsText, setBulkTestsText] = useState("");
@@ -382,7 +385,18 @@ const PrepodRedLab = () => {
         console.error("Ошибка загрузки групп:", err);
       }
     };
+
+    const fetchSubjects = async () => {
+      try {
+        const res = await api.get("/subjects");
+        setSubjects(res.data);
+      } catch (err) {
+        console.error("Ошибка загрузки предметов:", err);
+      }
+    };
+
     fetchGroups();
+    fetchSubjects();
   }, []);
 
   useEffect(() => {
@@ -394,6 +408,7 @@ const PrepodRedLab = () => {
         setLabDescription(lab.description || "");
         setTests(lab.test_cases || []);
         setSelectedGroup(lab.group_id || "");
+        setSubjectId(lab.subject_id || "");
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -486,6 +501,11 @@ const PrepodRedLab = () => {
       setIsSuccess(false);
       return;
     }
+    if (!subjectId) {
+      setResponseMessage("Выберите предмет!");
+      setIsSuccess(false);
+      return;
+    }
     if (tests.length === 0) {
       setResponseMessage("Добавьте хотя бы один тест!");
       setIsSuccess(false);
@@ -499,7 +519,7 @@ const PrepodRedLab = () => {
         description: labDescription || "",
         teacher_formula: "",
         input_variables: "",
-        subject_id: 1,
+        subject_id: Number(subjectId),
         group_id: parseInt(selectedGroup),
         test_cases: tests.map((t, idx) => ({
           id: typeof t.id === "number" ? t.id : idx + 1,
@@ -528,7 +548,6 @@ const PrepodRedLab = () => {
     <>
       <Section onSubmit={(e) => e.preventDefault()}>
         <UlList>
-          {/* ЭТАЖ 1: Название */}
           <List $Block style={{ width: "1248px", height: "120px" }}>
             <TitleInput
               type="text"
@@ -538,7 +557,6 @@ const PrepodRedLab = () => {
             />
           </List>
 
-          {/* ЭТАЖ 2: Описание + Группа */}
           <TwoColumnRow>
             <List>
               <div className="editing__block-Two">
@@ -568,11 +586,21 @@ const PrepodRedLab = () => {
                     </option>
                   ))}
                 </FormSelect>
+
+                <TitleBlock style={{ marginTop: "10px" }}>Выбор предмета</TitleBlock>
+                <p className="editing__block-text">Выберите предмет</p>
+                <FormSelect value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
+                  <option value="">Предмет</option>
+                  {subjects.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </FormSelect>
               </div>
             </List>
           </TwoColumnRow>
 
-          {/* ЭТАЖ 3: Тесты */}
           <BigBlock $BigFon $BigHeight $GapForm>
             <div className="block__one">
               <TitleBlock $Padding>Список тестов:</TitleBlock>
@@ -629,7 +657,6 @@ const PrepodRedLab = () => {
             </div>
           </BigBlock>
 
-          {/* ЭТАЖ 4: Импорт тестов */}
           <TestsIOBlock>
             <p className="tests-input-title">Форма для ввода или загрузки тестов</p>
             <div className="tests-input">
@@ -657,7 +684,6 @@ const PrepodRedLab = () => {
             <ButtonAdd onClick={importTestsFromText}>Импортировать тесты</ButtonAdd>
           </TestsIOBlock>
 
-          {/* ЭТАЖ 5: Ограничения */}
           <RestrictionsBlock>
             <RestrictionRoom>
               <p className="room-title">Количество переменных</p>
@@ -711,7 +737,6 @@ const PrepodRedLab = () => {
             </RestrictionRoom>
           </RestrictionsBlock>
 
-          {/* ЭТАЖ 6: Кнопка */}
           <div className="block__button">
             <button className="block__end" type="button" onClick={handleSave}>
               <span className="block__end-link">Завершить редактирование и сохранить</span>

@@ -2,6 +2,10 @@ import "./style.css";
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import main from "../../img/main.svg";
+import labs from "../../img/labs.svg";
+import lk from "../../img/lk.svg";
+import add from "../../img/add.svg";
 
 
 const FooterStyle = styled.footer`

@@ -314,9 +314,20 @@ const FormSelect = styled.select`
   outline: none;
   font-size: 16px;
   font-family: "Montserrat";
-  padding: 0 10px;
+  padding: 0 35px 0 10px;              /* ← padding справа под стрелку */
   width: 100%;
   margin-bottom: 12px;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;   /* ← сдвинули на 12px вместо 10px */
+  background-size: 14px;
+  &:focus {
+    outline: none;
+  }
 `;
 
 const Notification = styled.div`
@@ -575,28 +586,33 @@ const PrepodRedLab = () => {
               </div>
             </List>
             <List $Back>
-              <div className="editing__block-Two">
-                <TitleBlock>Выбор группы</TitleBlock>
-                <p className="editing__block-text">Выберите группу</p>
-                <FormSelect value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)}>
-                  <option value="">Группа</option>
-                  {groups.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.name}
-                    </option>
-                  ))}
-                </FormSelect>
-
-                <TitleBlock style={{ marginTop: "10px" }}>Выбор предмета</TitleBlock>
-                <p className="editing__block-text">Выберите предмет</p>
-                <FormSelect value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
-                  <option value="">Предмет</option>
-                  {subjects.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </FormSelect>
+              <div className="editing__block-Two" style={{ width: "100%" }}>
+                <div style={{ display: "flex", gap: "16px", width: "100%" }}>
+                  <div style={{ flex: 1 }}>
+                    <TitleBlock>Группа</TitleBlock>
+                    <p className="editing__block-text">Выберите группу</p>
+                    <FormSelect value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)}>
+                      <option value="">Группа</option>
+                      {groups.map((g) => (
+                        <option key={g.id} value={g.id}>
+                          {g.name}
+                        </option>
+                      ))}
+                    </FormSelect>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <TitleBlock>Предмет</TitleBlock>
+                    <p className="editing__block-text">Выберите предмет</p>
+                    <FormSelect value={subjectId} onChange={(e) => setSubjectId(e.target.value)}>
+                      <option value="">Предмет</option>
+                      {subjects.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </FormSelect>
+                  </div>
+                </div>
               </div>
             </List>
           </TwoColumnRow>

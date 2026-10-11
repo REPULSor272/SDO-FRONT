@@ -9,3 +9,8 @@ export function patchMark(task_id, student_id, new_mark) {
         mark: new_mark
     })
 }
+
+export function deleteSolution(solution_id){
+    console.log("Удаляем решение с ID:", solution_id);
+    return appApiIns.delete(`/api/task/solution/${solution_id}`)
+}

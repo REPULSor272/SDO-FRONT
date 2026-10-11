@@ -219,7 +219,11 @@ const LabItem = styled.li`
   padding: 40px;
   font-size: 18px;
   font-family: Montserrat;
-  background: ${(props) => (props.isCompleted ? "#E6F4CF" : "#f0f0f0")};
+  background: ${(props) => {
+    if (props.$status === "success") return "#E6F4CF";     
+    if (props.$status === "failed") return "#FFC7C7";      
+    return "#f0f0f0";                                       
+  }};
   border-radius: 7px;
   display: flex;
   justify-content: space-between;
@@ -443,7 +447,7 @@ const StudLaboratory = () => {
           <p>Лабораторные не найдены</p>
         ) : (
           filteredLabs.map((lab) => (
-            <LabItem key={lab.id} isCompleted={lab.completed}>
+            <LabItem key={lab.id} $status={lab.status || "not_started"}>
               <NameLab>{lab.name}</NameLab>
               <TaskButton onClick={() => handleLabClick(lab.id)}>
                 Перейти

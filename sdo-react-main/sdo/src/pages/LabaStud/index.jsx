@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import FileUploader from './FileUploader';
 import { uploadByTaskId, testingTask, getTaskById } from '../../api/file-api';
-import { deleteSolution } from '../../api/tasks-api';
+import { deleteSolution, hiddenSolution } from '../../api/tasks-api';
 
 const Container = styled.div`
   width: 1280px;
@@ -70,6 +70,10 @@ const Text = styled.p`
   font-size: 16px;
   line-height: 1.5;
   margin-left: 10px;
+  font-family: Montserrat;
+  font-weight: 400;
+  line-height: 27px;
+  letter-spacing: 0%;
 `;
 
 const SolutionContainer = styled.div`
@@ -271,6 +275,55 @@ const SolutionCodeBtn = styled.span`
     transform: rotate(${props => props.$isOpen ? '180deg' : '0deg'});
     transition: transform 0.2s ease;
 `
+const ErrorTestCase = styled.div`
+  margin-left: 10px
+`
+
+const InputValue = styled.div`
+  margin: 5px;
+  font-family: Montserrat;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  line-height: 27px;
+  letter-spacing: 0%;
+`
+
+const ExpectedOutput = styled.div`
+  margin: 5px;
+  color: #4CAF50;
+  font-family: Montserrat;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  line-height: 27px;
+  letter-spacing: 0%;
+`
+const UserOutput = styled.div`
+  margin: 5px;
+  color:  #F44336;
+  font-family: Montserrat;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 16px;
+  line-height: 27px;
+  letter-spacing: 0%;
+`
+
+const ErrorTestBtn = styled.span`
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 10px solid #333;
+    cursor: pointer;
+    margin-left: 10px;
+
+    transform: rotate(${props => props.$isOpen ? '180deg' : '0deg'});
+    transition: transform 0.2s ease;
+`
+
 
 const LabaStud = () => {
   const { taskId } = useParams();
@@ -281,13 +334,17 @@ const LabaStud = () => {
   const [isNotificationExiting, setIsNotificationExiting] = useState(false);
   const [errorNotification, setErrorNotification] = useState(null);
   const [isErrorNotificationExiting, setIsErrorNotificationExiting] = useState(false);
-  const [showSolutionsCode, setShowSolutionsCode] = useState(false)
+  const [showSolutionsCode, setShowSolutionsCode] = useState({})
+  const [showErrorTestCase, setShowErrorTestCase] = useState({})
+  const [isLoad, setIsLoad] = useState()
+  const [lastSolutionId, setLastSolutionId] = useState()
 
   const loadTask = async () => {
     console.log('Загрузка задачи с ID:', taskId);
-    getTaskById(taskId)
+    return getTaskById(taskId)
       .then((res) => {
         setTask(res.data);
+        setLastSolutionId((res.data.solutions[res.data.solutions.length-1].id).toString())
       })
       .catch((error) => {
         console.error('Ошибка загрузки задачи:', error.message);
@@ -306,26 +363,15 @@ const LabaStud = () => {
         setIsNotificationExiting(false);
       }, 300);
     } else {
-      setNotification({ success, message });
-      setIsNotificationExiting(false);
+      setTimeout(() => {
+        setNotification({ success, message });
+        setIsNotificationExiting(false);
+      }, 300)
     }
     setTimeout(() => {
       setIsNotificationExiting(true);
       setTimeout(() => setNotification(null), 300);
     }, 5000);
-  };
-
-  const showErrorNotification = (message) => {
-    if (errorNotification) {
-      setIsErrorNotificationExiting(true);
-      setTimeout(() => {
-        setErrorNotification({ message });
-        setIsErrorNotificationExiting(false);
-      }, 300);
-    } else {
-      setErrorNotification({ message });
-      setIsErrorNotificationExiting(false);
-    }
   };
 
   const closeErrorNotification = () => {
@@ -341,7 +387,7 @@ const LabaStud = () => {
       uploadByTaskId(taskId, formData)
         .then(() => {
           showNotification(true, 'Файл успешно загружен!');
-          getTaskById(taskId).then((res) => setTask(res.data));
+          loadTask();
         })
         .catch((error) => {
           showNotification(false, 'Ошибка при загрузке файла!');
@@ -353,6 +399,7 @@ const LabaStud = () => {
   };
 
   const handleTest = async () => {
+    setIsLoad(true)
     testingTask(taskId)
       .then((res) => {
         const testResult = res.data;
@@ -362,25 +409,24 @@ const LabaStud = () => {
             ? 'Тестирование успешно!'
             : 'Тестирование завершено с ошибкой'
         );
-        getTaskById(taskId).then((res) => setTask(res.data));
+        setIsLoad()
+        loadTask();
       })
       .catch((error) => {
         const errorData = error.response?.data || {};
-        if (errorData.status === 'Failed') {
-          showErrorNotification(errorData.code_output);
-        }
         showNotification(false, 'Тестирование завершено с ошибкой');
-        getTaskById(taskId).then((res) => setTask(res.data));
+        setIsLoad()
+        loadTask();
       });
   };
 
-  const handleDeleteSolution = async (solutionId) => {
+  const handleHiddenSolution = async (solutionId) => {
     try {
-        await deleteSolution(solutionId);
+        await hiddenSolution(solutionId);
         await loadTask();
-        showNotification(true, 'Решение успешно удалено!');
+        console.log(1)
     } catch (error) {
-        showErrorNotification(false, error.message);
+      console.log(error)
     }
 };
 
@@ -410,17 +456,44 @@ const LabaStud = () => {
                 {showSolutions ? 'Скрыть' : 'Показать'}
               </ToggleButton>
             </div>
-            {showSolutions && task.solutions.map((solution, index) => (
+            {showSolutions && task.solutions
+            .filter(solution => solution.status === 'Success' || !solution.is_hidden)
+            .map((solution, index) => (
               <SolutionItem key={index}>
                 <SolutionHeader>
                   <SolutionTitle>Решение {index + 1}</SolutionTitle>
-                  <SolutionCodeBtn $isOpen={showSolutionsCode} onClick = {() => setShowSolutionsCode(!showSolutionsCode)} ></SolutionCodeBtn>
-                  <DeleteButton onClick={() => handleDeleteSolution(solution.id)}>
+                  <SolutionCodeBtn 
+                  $isOpen={!!showSolutionsCode[solution.id]} 
+                  onClick = {() => {
+                    setShowSolutionsCode((prev) => ({
+                      ...prev,
+                      [solution.id]: !prev[solution.id]
+                    }))
+                  }}></SolutionCodeBtn>
+                  {solution.status !== 'Success' && <DeleteButton onClick={() => handleHiddenSolution(solution.id)}>
                     ✕
-                  </DeleteButton>
+                  </DeleteButton>}
                 </SolutionHeader>
-                {showSolutionsCode && (<SolutionCode>{solution.code}</SolutionCode>)}
-                <Text><strong>Статус решения:</strong> {solution.status}</Text>
+                {showSolutionsCode[solution.id]  && (<SolutionCode>{solution.code}</SolutionCode>)}
+                <Text><strong>Статус решения:</strong> {(isLoad && solution.id == lastSolutionId) ? "Идет тестирование" : (solution.status === 'unknown' ? "Не протестировано" : solution.status)}
+                {solution.status === 'Failed' && <ErrorTestBtn 
+                $isOpen={showErrorTestCase[solution.id]}
+                onClick = {() => {
+                  setShowErrorTestCase((prev) => ({
+                    ...prev, 
+                    [solution.id]: !prev[solution.id]
+                  }))
+                }}
+                ></ErrorTestBtn>}
+                </Text>
+                {showErrorTestCase[solution.id] && <ErrorTestCase>
+                  <strong>Входящие данные</strong>
+                  <InputValue>{solution.test_result.input_data}</InputValue>
+                  <strong>Выходные данные</strong>
+                  <ExpectedOutput>{solution.test_result.expected_output}</ExpectedOutput>
+                  <strong>Выходные данные пользователя</strong>
+                  <UserOutput>{solution.test_result.user_output}</UserOutput>
+                  </ErrorTestCase>}
               </SolutionItem>
             ))}
           </SolutionContainer>
@@ -448,12 +521,6 @@ const LabaStud = () => {
         </Notification>
       )}
 
-      {errorNotification && (
-        <ErrorNotification isExiting={isErrorNotificationExiting}>
-          {errorNotification.message}
-          <CloseButton onClick={closeErrorNotification}>✖</CloseButton>
-        </ErrorNotification>
-      )}
     </Container>
   );
 };

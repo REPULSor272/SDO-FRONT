@@ -14,3 +14,7 @@ export function deleteSolution(solution_id){
     console.log("Удаляем решение с ID:", solution_id);
     return appApiIns.delete(`/api/task/solution/${solution_id}`)
 }
+
+export function hiddenSolution(solution_id){
+    return appApiIns.post(`/api/task/solution/${solution_id}/hide`)
+}

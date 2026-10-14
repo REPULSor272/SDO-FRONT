@@ -170,12 +170,10 @@ const getPageConfig = (pathname) => {
 
   for (const key of sortedKeys) {
     if (lowerPath === key || lowerPath.startsWith(key + "/")) {
-      console.log(" Префиксное совпадение:", key, "→", PAGE_CONFIG[key]);
       return PAGE_CONFIG[key];
     }
   }
 
-  console.log(" Не найдено, используется default:", lowerPath);
   return PAGE_CONFIG.default;
 };
 
@@ -183,10 +181,6 @@ const Header = ({ setIsLoggedIn, isLoggedIn }) => {
   const [userRole, setUserRole] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-
-  
-  console.log(" Текущий pathname:", location.pathname);
-  console.log(" Ключи PAGE_CONFIG:", Object.keys(PAGE_CONFIG));
 
   const config = getPageConfig(location.pathname);
 

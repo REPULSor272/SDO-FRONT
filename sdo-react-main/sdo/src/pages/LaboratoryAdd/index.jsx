@@ -504,6 +504,7 @@ const LaboratoryAdd = () => {
           inp: t.inp,
           out: t.out,
         })),
+        max_attempts: attemptsCount,
       },
     };
 

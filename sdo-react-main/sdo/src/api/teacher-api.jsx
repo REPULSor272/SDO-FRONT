@@ -43,3 +43,4 @@ export function editLab(labId, data) {
 export function labData(labId) {
 	return appApiIns.get(`api/teachers/labs/${labId}`);
 }
+

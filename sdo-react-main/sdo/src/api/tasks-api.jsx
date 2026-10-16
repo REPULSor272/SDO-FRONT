@@ -18,3 +18,8 @@ export function deleteSolution(solution_id){
 export function hiddenSolution(solution_id){
     return appApiIns.post(`/api/task/solution/${solution_id}/hide`)
 }
+
+
+export function resetAttempts(task_id, student_id){
+	return appApiIns.patch(`/api/teachers/task/${task_id}/student/${student_id}/reset_attemps`)
+}

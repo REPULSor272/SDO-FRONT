@@ -324,6 +324,28 @@ const ErrorTestBtn = styled.span`
     transition: transform 0.2s ease;
 `
 
+const BlockAttempts = styled.div`
+    display: flex;
+    min-width: 650px;
+    max-width: 675px;
+    align-items: center;
+    gap: 6px;
+    min-height: 49px;
+    background-color: #F0F0F0;
+    padding: 0 8px;
+    font-family: Montserrat, sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 27px;
+`
+
+const Divider = styled.div`
+  margin: 0 8px;
+  width: 2px;
+  height: 30px;
+  background-color: #000000
+`
+
 
 const LabaStud = () => {
   const { taskId } = useParams();
@@ -399,6 +421,10 @@ const LabaStud = () => {
   };
 
   const handleTest = async () => {
+    if (task.max_attempts - task.attempts_user.attempt_used === 0){
+      alert("Вы привысили лимит попыток, обратитесь к преподавателю")
+      return
+    }
     setIsLoad(true)
     testingTask(taskId)
       .then((res) => {
@@ -442,12 +468,21 @@ const LabaStud = () => {
           {task.status === 'Success' ? 'Сдано' : 'Не сдано'}
         </StatusMarker>
       </HeaderContainer>
-
       <BlockDescription>
         <Text>{task.description.replace(/\\n/g, '\n')}</Text>
       </BlockDescription>
 
       <BlockTask>
+        <BlockAttempts>
+          Ваши попытки:
+          <strong>{" " + task.attempts_user.attempt_used}</strong>
+          <Divider></Divider>
+          Всего ваших попыток: 
+          <strong>{" " + task.attempts_user.attempt_all}</strong>
+          <Divider></Divider>
+          Осталось попыток:
+          <strong>{" " + task.max_attempts - task.attempts_user.attempt_used}</strong>
+        </BlockAttempts>
         {task.solutions.length > 0 && (
           <SolutionContainer>
             <div style={{ display: 'flex', alignItems: 'center' }}>

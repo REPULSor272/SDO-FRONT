@@ -466,6 +466,13 @@ const LaboratoryAdd = () => {
     reader.readAsText(file);
   };
 
+  const parseOptionalPositiveInt = (value) => {
+    const trimmed = String(value ?? "").trim();
+    if (!trimmed) return null;
+    const parsed = Number.parseInt(trimmed, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -504,7 +511,10 @@ const LaboratoryAdd = () => {
           inp: t.inp,
           out: t.out,
         })),
-        max_attempts: attemptsCount,
+        max_attempts: parseOptionalPositiveInt(attemptsCount) ?? 100,
+        max_code_length: parseOptionalPositiveInt(codeLength),
+        max_execution_time_sec: parseOptionalPositiveInt(speedLimit),
+        max_memory_mb: parseOptionalPositiveInt(memoryLimit),
       },
     };
 

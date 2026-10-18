@@ -314,7 +314,7 @@ const FormSelect = styled.select`
   outline: none;
   font-size: 16px;
   font-family: "Montserrat";
-  padding: 0 35px 0 10px;              /* ← padding справа под стрелку */
+  padding: 0 35px 0 10px;
   width: 100%;
   margin-bottom: 12px;
   box-sizing: border-box;
@@ -323,7 +323,7 @@ const FormSelect = styled.select`
   -moz-appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right 12px center;   /* ← сдвинули на 12px вместо 10px */
+  background-position: right 12px center;
   background-size: 14px;
   &:focus {
     outline: none;
@@ -420,6 +420,10 @@ const PrepodRedLab = () => {
         setTests(lab.test_cases || []);
         setSelectedGroup(lab.group_id || "");
         setSubjectId(lab.subject_id || "");
+        setAttemptsCount(lab.max_attempts != null ? String(lab.max_attempts) : "");
+        setCodeLength(lab.max_code_length != null ? String(lab.max_code_length) : "");
+        setSpeedLimit(lab.max_execution_time_sec != null ? String(lab.max_execution_time_sec) : "");
+        setMemoryLimit(lab.max_memory_mb != null ? String(lab.max_memory_mb) : "");
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -501,6 +505,13 @@ const PrepodRedLab = () => {
     reader.readAsText(file);
   };
 
+  const parseOptionalPositiveInt = (value) => {
+    const trimmed = String(value ?? "").trim();
+    if (!trimmed) return null;
+    const parsed = Number.parseInt(trimmed, 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  };
+
   const handleSave = async () => {
     if (!labTitle.trim()) {
       setResponseMessage("Введите название!");
@@ -537,7 +548,10 @@ const PrepodRedLab = () => {
           inp: t.inp,
           out: t.out,
         })),
-        max_attempts: attemptsCount,
+        max_attempts: parseOptionalPositiveInt(attemptsCount) ?? 100,
+        max_code_length: parseOptionalPositiveInt(codeLength),
+        max_execution_time_sec: parseOptionalPositiveInt(speedLimit),
+        max_memory_mb: parseOptionalPositiveInt(memoryLimit),
       },
     };
 

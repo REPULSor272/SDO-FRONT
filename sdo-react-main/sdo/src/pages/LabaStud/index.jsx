@@ -51,6 +51,25 @@ const BlockDescription = styled.div`
   padding: 15px;
 `;
 
+const BlockLimits = styled.div`
+  width: 100%;
+  background-color: #F5F0E6;
+  border-radius: 7px;
+  padding: 15px;
+`;
+
+const LimitsTitle = styled.p`
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 10px;
+`;
+
+const SolutionMetaText = styled.p`
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0 0 0 10px;
+`;
+
 const BlockTask = styled.div`
   width: 100%;
   background-color: #D9D9D9;
@@ -460,6 +479,11 @@ const LabaStud = () => {
     return <Container>Загрузка...</Container>;
   }
 
+  const hasCodeLengthLimit = task.max_code_length != null;
+  const hasSpeedLimit = task.max_execution_time_sec != null;
+  const hasMemoryLimit = task.max_memory_mb != null;
+  const hasLimits = hasCodeLengthLimit || hasSpeedLimit || hasMemoryLimit;
+
   return (
     <Container>
       <HeaderContainer>
@@ -471,6 +495,27 @@ const LabaStud = () => {
       <BlockDescription>
         <Text>{task.description.replace(/\\n/g, '\n')}</Text>
       </BlockDescription>
+
+      {hasLimits && (
+        <BlockLimits>
+          <LimitsTitle>Ограничения проверки:</LimitsTitle>
+          {hasCodeLengthLimit && (
+            <SolutionMetaText>
+              <strong>Длина кода:</strong> не более {task.max_code_length} строк
+            </SolutionMetaText>
+          )}
+          {hasSpeedLimit && (
+            <SolutionMetaText>
+              <strong>Скорость работы:</strong> не более {task.max_execution_time_sec} сек
+            </SolutionMetaText>
+          )}
+          {hasMemoryLimit && (
+            <SolutionMetaText>
+              <strong>Используемая память:</strong> не более {task.max_memory_mb} МБ
+            </SolutionMetaText>
+          )}
+        </BlockLimits>
+      )}
 
       <BlockTask>
         <BlockAttempts>

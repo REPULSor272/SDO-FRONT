@@ -424,6 +424,7 @@ const PrepodRedLab = () => {
         setCodeLength(lab.max_code_length != null ? String(lab.max_code_length) : "");
         setSpeedLimit(lab.max_execution_time_sec != null ? String(lab.max_execution_time_sec) : "");
         setMemoryLimit(lab.max_memory_mb != null ? String(lab.max_memory_mb) : "");
+        setMaxVariables(lab.max_variables != null ? String(lab.max_variables) : "");
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -512,6 +513,13 @@ const PrepodRedLab = () => {
     return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
   };
 
+  const parseOptionalPositiveFloat = (value) => {
+    const trimmed = String(value ?? "").trim();
+    if (!trimmed) return null;
+    const parsed = Number.parseFloat(trimmed.replace(",", "."));
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  };
+
   const handleSave = async () => {
     if (!labTitle.trim()) {
       setResponseMessage("Введите название!");
@@ -550,8 +558,9 @@ const PrepodRedLab = () => {
         })),
         max_attempts: parseOptionalPositiveInt(attemptsCount) ?? 100,
         max_code_length: parseOptionalPositiveInt(codeLength),
-        max_execution_time_sec: parseOptionalPositiveInt(speedLimit),
-        max_memory_mb: parseOptionalPositiveInt(memoryLimit),
+        max_execution_time_sec: parseOptionalPositiveFloat(speedLimit),
+        max_memory_mb: parseOptionalPositiveFloat(memoryLimit),
+        max_variables: parseOptionalPositiveInt(maxVariables),
       },
     };
 

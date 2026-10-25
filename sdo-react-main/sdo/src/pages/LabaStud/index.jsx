@@ -479,10 +479,11 @@ const LabaStud = () => {
     return <Container>Загрузка...</Container>;
   }
 
+  const hasVariablesLimit = task.max_variables != null;
   const hasCodeLengthLimit = task.max_code_length != null;
   const hasSpeedLimit = task.max_execution_time_sec != null;
   const hasMemoryLimit = task.max_memory_mb != null;
-  const hasLimits = hasCodeLengthLimit || hasSpeedLimit || hasMemoryLimit;
+  const hasLimits = hasVariablesLimit || hasCodeLengthLimit || hasSpeedLimit || hasMemoryLimit;
 
   return (
     <Container>
@@ -499,6 +500,11 @@ const LabaStud = () => {
       {hasLimits && (
         <BlockLimits>
           <LimitsTitle>Ограничения проверки:</LimitsTitle>
+          {hasVariablesLimit && (
+            <SolutionMetaText>
+              <strong>Количество переменных:</strong> не более {task.max_variables}
+            </SolutionMetaText>
+          )}
           {hasCodeLengthLimit && (
             <SolutionMetaText>
               <strong>Длина кода:</strong> не более {task.max_code_length} строк

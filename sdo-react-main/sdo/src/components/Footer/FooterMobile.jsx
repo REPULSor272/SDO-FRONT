@@ -2,15 +2,14 @@ import "./style.css";
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import add from "../../img/add.svg";
-import lk from "../../img/lk.svg";
-import labs from "../../img/labs.svg";
 import main from "../../img/main.svg";
+import labs from "../../img/labs.svg";
+import lk from "../../img/lk.svg";
+import add from "../../img/add.svg";
 
 
 const FooterStyle = styled.footer`
-    positon: absolute;
-    bottom: 0px;
+    bottom: 0;
     margin-top: 20px;
     bottom: 0;
     left: 0;
@@ -73,7 +72,7 @@ const FooterMobile = ({ setIsLoggedIn, isLoggedIn }) => {
                 <FooterStyle>
                     {userRole === "student" && (
                         <>
-                            <Link to="/mainStud" className="navBtn">
+                            <Link to="/" className="navBtn">
                                 <img src={main} alt="" />
                                 <span>Главная</span>
                             </Link>

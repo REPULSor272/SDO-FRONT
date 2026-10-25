@@ -473,6 +473,13 @@ const LaboratoryAdd = () => {
     return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
   };
 
+  const parseOptionalPositiveFloat = (value) => {
+    const trimmed = String(value ?? "").trim();
+    if (!trimmed) return null;
+    const parsed = Number.parseFloat(trimmed.replace(",", "."));
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -513,8 +520,9 @@ const LaboratoryAdd = () => {
         })),
         max_attempts: parseOptionalPositiveInt(attemptsCount) ?? 100,
         max_code_length: parseOptionalPositiveInt(codeLength),
-        max_execution_time_sec: parseOptionalPositiveInt(speedLimit),
-        max_memory_mb: parseOptionalPositiveInt(memoryLimit),
+        max_execution_time_sec: parseOptionalPositiveFloat(speedLimit),
+        max_memory_mb: parseOptionalPositiveFloat(memoryLimit),
+        max_variables: parseOptionalPositiveInt(maxVariables),
       },
     };
 

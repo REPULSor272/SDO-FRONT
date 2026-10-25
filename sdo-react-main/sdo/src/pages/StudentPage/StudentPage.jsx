@@ -38,6 +38,7 @@ const ListSubject = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 `;
 
 const BigList = styled.div`
@@ -169,6 +170,7 @@ export default function StudentPage() {
                         <ListSubject style={{ color: "black" }}
                             key={labId}
                             $isCompleted={isCompleted}
+                            onClick = {() => navigate(`/seeresultstudent/${labId}/${id}`)}
                         >
                             <TextDiscipline>{labName}</TextDiscipline>
                         </ListSubject>

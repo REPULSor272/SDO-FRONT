@@ -3,6 +3,8 @@ import { ReactComponent as VectorIcon} from '../../../img/Vector.svg'
 import { useState } from 'react';
 import {dowlandFile} from '../../../api/file-api'
 import { patchMark } from '../../../api/tasks-api';
+import { useNavigate } from "react-router-dom";
+
 
 
 const StudentLab = ({name, isSubmitted, score, task_id, stud_id}) => {
@@ -10,6 +12,7 @@ const StudentLab = ({name, isSubmitted, score, task_id, stud_id}) => {
     const [isEditingScore, setIsEditingScore] = useState(false)
     const [scoreInput, setScoreInput] = useState('')
     const [save, setSave] = useState('Сохранить')
+    const navigate = useNavigate();
 
     const changeMark = (taskId, userId, newMark) => {
         const responce = patchMark(taskId, userId, newMark)
@@ -50,7 +53,7 @@ const StudentLab = ({name, isSubmitted, score, task_id, stud_id}) => {
             </S.StudentsLabText>
             {isSubmitted ? (
             <S.StudentLabAction>
-                <S.StudentsLabtn>Просмотр результатов</S.StudentsLabtn>
+                <S.StudentsLabtn onClick={() => navigate(`/seeresultstudent/${task_id}/${stud_id}`)}>Просмотр результатов</S.StudentsLabtn>
                 <S.StudentLabResult $color={score > 75 ? "#21B200" : "#FF7070"}>{score}/100</S.StudentLabResult>
                 <S.StudentLabDowland onClick = {() => DowlandFile(task_id, stud_id)}><VectorIcon/></S.StudentLabDowland>
                 <S.StudentLabChange>

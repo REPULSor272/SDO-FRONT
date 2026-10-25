@@ -4,6 +4,10 @@ export function getTaskById(taskId) {
     return appApiIns.get(`/api/task/${taskId}`);
 }
 
+export function getResultLabStudent(task_id, student_id){
+    return appApiIns.get(`/api/task/${task_id}/student/${student_id}`)
+}
+
 export function getStudentResultLabId(taskId) {
     return appApiIns.get(`/api/teachers/tasks/${taskId}/students`);
 }

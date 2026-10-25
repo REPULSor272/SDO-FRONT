@@ -1,5 +1,5 @@
 import "./style.css";
-import logo from "../../img/logo.svg";
+import logo from "../../img/Logo_Polytech_rus_main.svg";
 import React, { useState, useEffect } from "react";
 import Bread from "../BreadCrumbs";
 import { Link, useNavigate, useLocation } from "react-router-dom";

@@ -20,6 +20,7 @@ import TestLabs from "../../pages/TestLabs/TestLabs";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import StudentPage from "../../pages/StudentPage/StudentPage";
 import СheckLabTeacher from "../../pages/CheckLabTeacher/CheckLabTeacher"
+import SeeResultStudent from "../../pages/SeeResultStudent/SeeResultStudent";
 
 const MainRouter = ({ setIsLoggedIn }) => {
   return (
@@ -155,6 +156,12 @@ const MainRouter = ({ setIsLoggedIn }) => {
         <Route path="/checklabteacher/:task_id" element={
           <ProtectedRoute allowedRoles={["teacher"]}>
             <СheckLabTeacher></СheckLabTeacher>
+          </ProtectedRoute>
+        }/>
+
+        <Route path="/seeresultstudent/:task_id/:student_id" element={
+          <ProtectedRoute allowedRoles={['teacher']}>
+            <SeeResultStudent></SeeResultStudent>
           </ProtectedRoute>
         }/>
       </Routes>

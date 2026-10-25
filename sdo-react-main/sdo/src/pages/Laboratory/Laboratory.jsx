@@ -90,7 +90,7 @@ const SectionLab = styled.div`
     font-family: "Montserrat";
     line-height: 27px;
     text-decoration: none;
-    background: #f0f0f0;
+    background: #DDE5F8;
     border-style: none;
     border-radius: 4px;
     box-sizing: border-box;
@@ -127,12 +127,16 @@ const SectionLab = styled.div`
     transition: 0.5s;
   }
 
+  .base-color{ 
+    background:#E6F4Cf; // Убрать, если окажется, что все section__lab-page должны быть с этим цветом
+  }
+
   .alternate-color {
     background: rgba(216, 216, 216, 0.38);
   }
 
   .section__login-formSelect {
-    width: 200px;
+    width: 230px;
     font-family: "Montserrat";
     cursor: pointer;
     height: 47px;
@@ -157,13 +161,21 @@ const SectionLab = styled.div`
     }
   }
 
+  @media (max-width: 1300px){
+    .section__login-formSelect {
+      width: 100%;
+    }
+    .section__lab-button{
+      width: 100%;
+    }
+  }
+
   @media (max-width: 768px) {
     padding: 0px 16px 20px;
     gap: 12px;
 
     .section__lab-button {
       width: 100%;
-      max-width: 395px;
       font-size: 14px;
     }
 
@@ -174,7 +186,6 @@ const SectionLab = styled.div`
 
     .section__login-formSelect {
       width: 100%;
-      max-width: 200px;
       font-size: 14px;
     }
   }
@@ -338,6 +349,12 @@ const SpnLab = styled.span`
     border-style: none;
   }
 
+  @media (max-width: 1300px) {
+    .hideable{
+      display: none;
+    }
+  }
+
   @media (max-width: 768px) {
     gap: 8px;
     margin-top: 12px;
@@ -426,7 +443,7 @@ const SearchInput = styled.input`
   outline: none;
   font-size: 16px;
   color: #000;
-  text-align: center;
+  padding-left: 8px;
   &:focus {
     outline: none;
   }
@@ -442,6 +459,7 @@ const SearchIcon = styled(FaSearch)`
 `;
 const SearchContainer = styled.div`
   display: flex;
+  flex-direction: row;
   align-items: center;
   margin: 40px auto 0;
   width: 100%;
@@ -452,9 +470,10 @@ const SearchContainer = styled.div`
 
   @media (max-width: 1300px) {
     width: 100%;
-    max-width: 1236px;
+    max-width: 100%;
     margin: 40px auto 0;
     padding: 0 20px;
+    flex-direction: column;
   }
 
   @media (max-width: 768px) {
@@ -471,12 +490,15 @@ const SearchContainer = styled.div`
 `;
 const SearchInputContainer = styled.div`
   position: relative;
-  width: 395px;
+  width: 340px;
   box-sizing: border-box;
+
+  @media (max-width: 1300px) {
+    width: 100%;
+  }
 
   @media (max-width: 768px) {
     width: 100%;
-    max-width: 395px;
   }
 
   @media (max-width: 480px) {
@@ -488,6 +510,10 @@ const SelectsGroup = styled.div`
   display: flex;
   gap: 10px;
   margin-left: auto;
+
+  @media (max-width: 1300px) {
+    width: 100%;
+  }
 
   @media (max-width: 768px) {
     margin-left: 0;
@@ -726,7 +752,7 @@ const Laboratory = () => {
 
   const getColors = (index) => {
     return index % 2 === 0
-      ? "section__lab-page"
+      ? "section__lab-page base-color"
       : "section__lab-page alternate-color";
   };
 
@@ -804,27 +830,50 @@ const Laboratory = () => {
                   <SpnLab>
                     <Link
                       to={`/checklabteacher/${item.id}`}
-                      className="section__lab-edit"
+                      className="section__lab-edit hideable"
                       style={{ width: "220px" }}
                     >
                       Просмотр результатов
                     </Link>
-                    <Link
-                      to={`/PrepodRedLab/${item.id}`}
-                      className="section__lab-edit"
-                    >
-                      Редактировать
-                    </Link>
-                    <ButtonDelete
-                      onClick={() => handleDeleteClick(item.id, index)}
-                    >
-                      Удалить
-                    </ButtonDelete>
+                    {item.status === "published" ? (
+                      <Link
+                        to={`/PrepodRedLab/${item.id}`}
+                        className="section__lab-edit"
+                      >
+                        Редактировать
+                      </Link>
+                    ) : (
+                      <Link
+                        to={`/PrepodRedLab/${item.id}`}
+                        className="section__lab-edit"
+                        style = {{
+                          backgroundColor: "#D9D9D9",
+                        }}
+                      >
+                        Редактировать
+                      </Link>
+                    )}
+                    {item.status === "published" ? (
+                      <ButtonDelete
+                        onClick={() => handleDeleteClick(item.id, index)}
+                      >
+                        Удалить
+                      </ButtonDelete>
+                    ) : (
+                      <ButtonDelete
+                        onClick={() => handleDeleteClick(item.id, index)}
+                        style ={{
+                          backgroundColor:"#D9D9D9",
+                        }}
+                      >
+                        Удалить
+                      </ButtonDelete>
+                    )}
                     {item.status === "published" ? (
                       <PublishButton
                         style={{
-                          backgroundColor: "#e0e0e0",
-                          color: "#555",
+                          backgroundColor: "#D9D9D9",
+                          color: "#000",
                         }}
                         onClick={() =>
                           handleUpdateStatusLabClick(item.id, index)

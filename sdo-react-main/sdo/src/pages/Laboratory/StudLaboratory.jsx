@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useMemo } from "react";
-import "../../styles/style.css";
 import styled from "styled-components";
 import { FaSearch } from "react-icons/fa";
 import { getTasks } from "../../api/tasks-api";
@@ -220,7 +219,7 @@ const LabItem = styled.li`
   font-size: 18px;
   font-family: Montserrat;
   background: ${(props) => {
-    if (props.$status === "success") return "#E6F4CF";     
+    if (props.$status === "success" || props.$status === "passed") return "#E6F4CF";
     if (props.$status === "failed") return "#FFC7C7";      
     return "#f0f0f0";                                       
   }};
@@ -330,6 +329,23 @@ const SearchIcon = styled(FaSearch)`
   cursor: pointer;
   color: #000;
 `;
+
+const getLabStatus = (lab) => {
+  const status = String(lab.status ?? "").trim().toLowerCase();
+
+  if (["success", "passed"].includes(status)) {
+    return "success";
+  }
+
+  if (
+    lab.completed !== true &&
+    ["", "not_started", "pending", "unknown"].includes(status)
+  ) {
+    return "notStarted";
+  }
+
+  return "failed";
+};
 
 const StudLaboratory = () => {
   const [labItems, setLabItems] = useState({ isLoading: true, data: [] });
@@ -447,7 +463,10 @@ const StudLaboratory = () => {
           <p>Лабораторные не найдены</p>
         ) : (
           filteredLabs.map((lab) => (
-            <LabItem key={lab.id} $status={lab.status || "not_started"}>
+            <LabItem
+              key={lab.id}
+              $status={getLabStatus(lab)}
+            >
               <NameLab>{lab.name}</NameLab>
               <TaskButton onClick={() => handleLabClick(lab.id)}>
                 Перейти

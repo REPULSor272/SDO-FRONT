@@ -194,7 +194,7 @@ export const StudentsLab = styled.div`
   @media (max-width: 480px) {
     padding: 12px;
   }
-` 
+`
 
 export const StudentsLabText = styled.h1`
 font-family: Montserrat;
@@ -219,7 +219,7 @@ min-width: 0;
 export const StudentsLabtn = styled.button`
   background-color: #D9D9D9;
   border-radius: 4px;
-  border: none;    
+  border: none;
   outline: none;
   padding-top: 5px;
   padding-right: 12px;
@@ -266,7 +266,7 @@ align-items: center;
 justify-content: center;
 border-radius: 4px;
 opacity: 1;
-border: none;    
+border: none;
 outline: none;
 padding: 0;
 background-color: #D9D9D9;
@@ -281,7 +281,7 @@ export const StudentLabChange = styled.div`
   border-radius: 4px;
   opacity: 1;
   display: flex;
-  align-items: center;    
+  align-items: center;
   justify-content: center;
   font-family: Montserrat;
   font-weight: 400;
@@ -319,6 +319,11 @@ export const BtnSave = styled.button`
   font-size: 16px;
   text-align: center;
   cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 
   @media (max-width: 600px) {
     flex: 1 1 auto;
@@ -361,6 +366,13 @@ export const ScoreEditBox = styled.div`
     text-align: center;
     vertical-align: middle;
     }
+`
+
+export const ScoreError = styled.div`
+  color: #c62828;
+  font-size: 12px;
+  line-height: 1.2;
+  margin-top: 4px;
 `
 
 export const Notification = styled.div`

@@ -29,7 +29,12 @@ const LabGrade = styled.p`
   font-size: 14px;
   padding: 5px 10px;
   border-radius: 5px;
-  background-color: ${({ grade }) => (grade === 'Success' ? '#85A4518C' : '#FF7070')};
+  background-color: ${({ $status }) =>
+    $status === "success"
+      ? "#2E7D32"
+      : $status === "notStarted"
+        ? "#757575"
+        : "#C62828"};
   color: white;
   margin: 0;
   font-weight: 600;
@@ -38,12 +43,21 @@ const LabGrade = styled.p`
 `;
 
 const LabItem = ({ name, grade }) => {
-  const displayStatus = grade === 'Success' ? 'Сдано' : 'Не сдано';
+  const normalizedStatus = String(grade ?? "").trim().toLowerCase();
+  const isSuccessful = ["success", "passed"].includes(normalizedStatus);
+  const isNotStarted =
+    ["", "not_started", "pending", "unknown"].includes(normalizedStatus);
+  const status = isSuccessful ? "success" : isNotStarted ? "notStarted" : "failed";
+  const displayStatus = isSuccessful
+    ? "Сдано"
+    : isNotStarted
+      ? "Не начато"
+      : "Не сдано";
 
   return (
     <LabItemContainer>
       <LabName>{name}</LabName>
-      <LabGrade grade={grade}>{displayStatus}</LabGrade>
+      <LabGrade $status={status}>{displayStatus}</LabGrade>
     </LabItemContainer>
   );
 };

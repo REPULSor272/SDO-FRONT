@@ -2,11 +2,13 @@ import styled from 'styled-components';
 import ThemedSearchIcon from "../../components/ThemedSearchIcon";
 
 export const container = styled.div`
+  max-width: 1248px;
+  margin: 0 auto;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 20px 40px;
+  padding: 16px 0px 40px;
   color: var(--text, black);
   box-sizing: border-box;
 

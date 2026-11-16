@@ -21,7 +21,7 @@ const SectionLab = styled.div`
     flex-wrap: wrap;
     justify-content: center;
     width: 100%;
-    max-width: 1270px;
+    max-width: 1248px;
     padding: 0;
     box-sizing: border-box;
   }
@@ -113,7 +113,7 @@ const SectionLab = styled.div`
 
 const SubjectSelectWrapper = styled.div`
   width: 100%;
-  max-width: 1270px;
+  max-width: 1248px;
   padding: 0;
   box-sizing: border-box;
 
@@ -188,7 +188,7 @@ const ListLab = styled.ul`
   flex-direction: column;
   gap: 10px;
   width: 100%;
-  max-width: 1270px;
+  max-width: 1248px;
   list-style: none;
   padding: 0;
   margin: 0;

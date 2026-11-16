@@ -14,9 +14,9 @@ const PageContainer = styled.div`
 
 const ContentWrapper = styled.div`
   width: 100%;
-  max-width: 1200px;
+  max-width: 1248px;
   margin: 0 auto;
-  padding: 20px 20px 60px;
+  padding: 20px 0px 60px;
 
   @media (max-width: 768px) {
     padding: 16px 16px 40px;

@@ -240,7 +240,7 @@ const ListLab = styled.ul`
   flex-direction: column;
   gap: 10px;
   width: 100%;
-  max-width: 1236px;
+  max-width: 1248px;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -465,7 +465,7 @@ const SearchContainer = styled.div`
   align-items: center;
   margin: 40px auto 0;
   width: 100%;
-  max-width: 1236px;
+  max-width: 1248px;
   gap: 10px;
   flex-wrap: wrap;
   box-sizing: border-box;

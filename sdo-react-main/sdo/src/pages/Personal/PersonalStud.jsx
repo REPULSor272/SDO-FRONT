@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { IoPieChart, IoList, IoTrendingUp } from "react-icons/io5";
 
 const SectionLab = styled.div`
+  max-width: 1248px;
+  margin: 0 auto;
   width: 100%;
   background-color: #fff;
   font-family: "Montserrat", sans-serif;
@@ -44,7 +46,7 @@ const SectionLab = styled.div`
 `;
 
 const List = styled.div`
-  width: 350px;
+  width: 100%;
   padding: 20px;
   background-color: #BECBEE;
   border-radius: 7px;
@@ -82,7 +84,7 @@ const List = styled.div`
 `;
 
 const ListSubject = styled.div`
-  width: 500px;
+  width: 100%;
   height: 100%;
   max-height: 30px;
   padding: 15px 25px;
@@ -176,7 +178,7 @@ const BigList = styled.div`
 const Text = styled.p`
   font-family: 'Montserrat', sans-serif;
   font-size: 18px;
-  margin: 0; 
+  margin: 0;
   text-align: center;
   color: #000;
 
@@ -230,6 +232,7 @@ const InfoText = styled.p`
 `;
 
 const RowBlocks = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;

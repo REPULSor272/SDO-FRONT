@@ -7,12 +7,12 @@ import { deleteSolution, hiddenSolution } from '../../api/tasks-api';
 
 const Container = styled.div`
   width: 100%;
-  max-width: 1320px;
+  max-width: 1248px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 20px;
+  padding: 20px 0;
   font-family: "Montserrat", sans-serif;
   align-items: center;
 

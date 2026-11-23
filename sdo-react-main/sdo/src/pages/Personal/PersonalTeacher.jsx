@@ -5,10 +5,12 @@ import { getUserData } from "../../api/user-api";
 import { getGroups, getSubjects } from "../../api/teacher-api";
 
 const SectionLab = styled.div`
+  max-width: 1248px;
+  margin: 0 auto;
   display: flex;
   gap: 20px;
   justify-content: center;
-  padding: 75px 0px 100px;
+  padding: 40px 0px 100px;
   box-sizing: border-box;
   .mobile{
     display:none;
@@ -45,7 +47,6 @@ const SectionLab = styled.div`
 `;
 
 const List = styled.li`
-  width: 320px;
   height: 100px;
   background-color: var(--panel, #d5def6);
   border-radius: 7px;
@@ -88,7 +89,6 @@ const List = styled.li`
 
 const ListSubject = styled.div`
   width: 100%;
-  max-width: 500px;
   height: 40px;
   padding: 10px 25px;
   background-color: var(--surface, #fff);
@@ -136,7 +136,6 @@ const TextDiscipline = styled.p`
 `;
 
 const BigList = styled.li`
-  width: 800px;
   background-color: var(--panel, #e6f4cf);
   border-radius: 7px;
   display: flex;
@@ -207,6 +206,7 @@ const TextDisciplines = styled.p`
 `;
 
 const RowBlocks = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   text-align: center;

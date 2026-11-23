@@ -187,14 +187,14 @@ const ButtonEx = styled.button`
 `;
 
 const PAGE_CONFIG = {
-  "/personalteacher": { maxWidth: "1140px", padding: "12px 0 12px 0" },
-  "/personalstud":    { maxWidth: "1030px", padding: "12px 0 12px 0" },
-  "/laboratory":      { maxWidth: "1236px", padding: "12px 0 12px 0" },
-  "/studlaboratory":  { maxWidth: "1270px", padding: "12px 0 12px 0" },
-  "/laboratoryadd":   { maxWidth: "1248px", padding: "12px 0 12px 0" },
-  "/prepodredlab":    { maxWidth: "1248px", padding: "12px 0 12px 0" },
-  "/checklabteacher": { maxWidth: "1248px", padding: "12px 0 12px 0" },
-  default:            { maxWidth: "1440px", padding: "12px 40px 12px 60px" },
+  // "/personalteacher": { maxWidth: "1140px", padding: "12px 0 12px 0" },
+  // "/personalstud":    { maxWidth: "1030px", padding: "12px 0 12px 0" },
+  // "/laboratory":      { maxWidth: "1236px", padding: "12px 0 12px 0" },
+  // "/studlaboratory":  { maxWidth: "1270px", padding: "12px 0 12px 0" },
+  // "/laboratoryadd":   { maxWidth: "1248px", padding: "12px 0 12px 0" },
+  // "/prepodredlab":    { maxWidth: "1248px", padding: "12px 0 12px 0" },
+  // "/checklabteacher": { maxWidth: "1248px", padding: "12px 0 12px 0" },
+  default:            { maxWidth: "1248px", padding: "12px 0px" },
 };
 
 const getPageConfig = (pathname) => {

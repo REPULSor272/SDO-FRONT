@@ -112,18 +112,33 @@ const LabRow = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  background-color: var(--surface, #fff);
+  background-color: ${({ $failed }) =>
+    $failed ? "var(--surface-failed, #F9DFDF)" : "var(--surface, #fff)"};
   border-radius: 6px;
   padding: 10px 15px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   min-height: 48px;
-  cursor: pointer; /* Курсор как у кнопки */
-  transition: background-color 0.3s ease; /* Плавный переход для hover */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: var(--accent-hover, #f5f5f5); /* Лёгкий серый фон при наведении */
+    background-color: ${({ $failed }) =>
+      $failed
+        ? "var(--surface-failed-hover, #F3CECE)"
+        : "var(--accent-hover, #f5f5f5)"};
   }
 `;
+
+const isLabNotStarted = (lab) =>
+  ["", "not_started", "pending", "unknown"].includes(
+    String(lab.status ?? "").trim().toLowerCase(),
+  );
+
+const isLabFailed = (lab) =>
+  !["success", "passed"].includes(
+    String(lab.status ?? "").trim().toLowerCase(),
+  ) &&
+  !(lab.completed !== true && isLabNotStarted(lab));
 
 export default function DisciplinesStud() {
   const [labsInfo, setLabsInfo] = useState([]);
@@ -144,7 +159,11 @@ export default function DisciplinesStud() {
         setLabsInfo(tasks);
 
         const totalTasks = tasks.length;
-        const submitted = tasks.filter(task => task.status === "Success").length;
+        const submitted = tasks.filter((task) =>
+          ["success", "passed"].includes(
+            String(task.status ?? "").trim().toLowerCase(),
+          ),
+        ).length;
         const grade = totalTasks > 0 ? Math.round((submitted / totalTasks) * 100) : 0;
 
         setStats({
@@ -173,6 +192,7 @@ export default function DisciplinesStud() {
             {labsInfo.map((lab) => (
               <LabRow
                 key={lab.id}
+                $failed={isLabFailed(lab)}
                 onClick={() => navigate(`/LabaStud/${lab.id}`)} // Делаем весь блок кликабельным
               >
                 <LabItem name={lab.name} grade={lab.status} />

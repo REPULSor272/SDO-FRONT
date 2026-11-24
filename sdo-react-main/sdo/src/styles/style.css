@@ -1,4 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@500&family=Montserrat:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+body {
+    margin: 0;
+    font-family: "Montserrat", sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
 
 /* ===== Базовые правила адаптива (действуют на всём сайте) ===== */
 
@@ -102,6 +114,5 @@ code {
         border-radius: 6px;
     }
 }
-
 
 
